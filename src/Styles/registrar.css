@@ -1,5 +1,5 @@
 /* ============================================================
-   PROTOCOLO 60 — REGISTRAR
+   PROTOCOLO 60 — REGISTRAR (MOBILE OPTIMIZED)
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
 
@@ -16,52 +16,65 @@
   --gold: #ffb627;
   font-family: 'Inter', sans-serif;
   color: var(--txt);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 0 4px;
 }
-.reg-wrap * { box-sizing: border-box; }
+.reg-wrap * { box-sizing: border-box; min-width: 0; }
 
 .reg-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 .reg-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
+  font-size: 28px;
   letter-spacing: 1px;
   font-weight: 400;
 }
 .reg-date {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 1px;
+  font-size: 10px;
+  letter-spacing: 0.8px;
   color: var(--acid);
 }
 
-/* Sub-tabs */
+/* Sub-tabs: Ajustado para que entren perfectamente las 5 pestañas en móviles */
 .reg-subtabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(3, 1fr); /* 3 arriba, 2 abajo o scrollable fluido */
+  gap: 6px;
+  margin-bottom: 16px;
+}
+@media (min-width: 380px) {
+  .reg-subtabs {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 .reg-subtab {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 3px;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px 4px;
+  border-radius: 10px;
+  padding: 10px 2px;
   color: var(--dim);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.16s;
   -webkit-tap-highlight-color: transparent;
+  text-align: center;
 }
-.reg-subtab span { font-size: 18px; }
+.reg-subtab span { font-size: 16px; }
 .reg-subtab.on {
   background: var(--acid);
   color: #0a0c10;
@@ -74,14 +87,15 @@
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 20px;
+  padding: 16px;
   margin-bottom: 14px;
+  width: 100%;
 }
 .reg-card-desc {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--dim);
-  line-height: 1.55;
-  margin-bottom: 18px;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 .reg-card-desc b { color: var(--txt); }
 
@@ -89,13 +103,14 @@
 .reg-field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 12px;
+  width: 100%;
 }
 .reg-field label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1.2px;
+  font-size: 9.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--dim);
 }
@@ -103,10 +118,11 @@
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 13px 14px;
+  padding: 12px 12px;
   color: var(--txt);
   font-family: 'Inter', sans-serif;
   font-size: 15px;
+  width: 100%;
   transition: 0.16s;
 }
 .reg-field input::placeholder { color: #4b5563; }
@@ -117,9 +133,9 @@
 }
 .reg-field.big input {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 40px;
+  font-size: 36px;
   letter-spacing: 1px;
-  padding: 8px 14px;
+  padding: 8px 12px;
   text-align: center;
   color: var(--acid);
 }
@@ -127,19 +143,20 @@
 .reg-grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
 }
 .reg-grid2 .reg-field { margin-bottom: 4px; }
 
 /* Botón guardar */
 .reg-save {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 6px;
   background: var(--acid);
   color: #0a0c10;
   border: none;
   border-radius: 11px;
-  padding: 15px;
+  padding: 14px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 800;
@@ -154,17 +171,17 @@
 .reg-quick {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 .reg-quick button {
   background: var(--panel2);
   border: 1px solid var(--line);
   border-radius: 9px;
-  padding: 12px 4px;
+  padding: 10px 2px;
   color: var(--ice);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   transition: 0.14s;
@@ -177,17 +194,17 @@
 /* Chips momento */
 .reg-chips {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .reg-chip {
   background: var(--panel2);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 9px 15px;
+  padding: 8px 12px;
   color: var(--dim);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.14s;
@@ -202,18 +219,18 @@
 .reg-meals {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .reg-meal {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 10px;
   width: 100%;
   text-align: left;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   cursor: pointer;
   transition: 0.16s;
   -webkit-tap-highlight-color: transparent;
@@ -225,16 +242,16 @@
   cursor: default;
 }
 .reg-check {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   border: 2px solid var(--line);
-  border-radius: 8px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #0a0c10;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   transition: 0.16s;
 }
@@ -246,49 +263,55 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
+  min-width: 0;
 }
 .reg-meal-when {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
+  font-size: 8.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--acid);
 }
 .reg-meal-desc {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #c9d3e0;
-  line-height: 1.4;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .reg-meal-kcal {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--txt);
   flex-shrink: 0;
 }
 
 .reg-empty {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--dim);
   text-align: center;
-  padding: 20px 0;
+  padding: 16px 0;
 }
 
 /* Toast */
 .reg-toast {
   position: fixed;
-  bottom: calc(90px + env(safe-area-inset-bottom));
+  bottom: calc(80px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   background: var(--acid);
   color: #0a0c10;
-  padding: 12px 22px;
+  padding: 10px 18px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   z-index: 60;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   animation: reg-toast-in 0.25s ease;
+  max-width: 90%;
+  text-align: center;
 }
 @keyframes reg-toast-in {
   from { opacity: 0; transform: translate(-50%, 10px); }
@@ -302,7 +325,7 @@
 /* ---------------- SINCRONIZANDO ---------------- */
 .reg-sync {
   display: inline-block;
-  margin-left: 10px;
+  margin-left: 8px;
   font-style: normal;
   color: var(--gold);
   animation: reg-pulse 1.2s ease-in-out infinite;
@@ -316,67 +339,67 @@
 .reg-done-banner {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 4px 2px;
+  gap: 12px;
+  padding: 4px 0;
 }
 .reg-done-check {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--acid);
   color: #0a0c10;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
 }
 .reg-done-banner b {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   letter-spacing: 0.5px;
   color: var(--acid);
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .reg-done-banner p {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--dim);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 /* ---------------- GYM ETAPAS ---------------- */
 .reg-etapas {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 .reg-etapa {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 11px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 .reg-etapa-name {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #c9d3e0;
   flex: 1;
 }
 .reg-etapa input {
-  width: 90px;
+  width: 80px;
   background: var(--panel2);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   color: var(--acid);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 13.5px;
   text-align: right;
 }
 .reg-etapa input::placeholder {
@@ -394,23 +417,23 @@
   background: rgba(200, 255, 47, 0.08);
   border: 1px solid rgba(200, 255, 47, 0.25);
   border-radius: 11px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
 }
 .reg-etapa-total span {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1.5px;
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
   color: var(--dim);
 }
 .reg-etapa-total b {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   color: var(--acid);
 }
 .reg-etapa-total b i {
   font-style: normal;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--dim);
   margin-left: 2px;
 }
