@@ -1,0 +1,341 @@
+/* ============================================================
+   PROTOCOLO 60 — PLAN
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
+
+.plan-wrap {
+  --bg: #0a0c10;
+  --panel: #12161d;
+  --panel2: #171c25;
+  --line: #232a35;
+  --txt: #e8edf5;
+  --dim: #7d8899;
+  --acid: #c8ff2f;
+  --fire: #ff5c33;
+  --ice: #38d6ff;
+  --gold: #ffb627;
+  font-family: 'Inter', sans-serif;
+  color: var(--txt);
+}
+.plan-wrap * { box-sizing: border-box; }
+
+.plan-loader {
+  padding: 60px;
+  text-align: center;
+  color: #7d8899;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.plan-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.plan-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+.plan-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--acid);
+  background: rgba(200, 255, 47, 0.1);
+  padding: 4px 9px;
+  border-radius: 6px;
+}
+
+/* Toggle menú/rutina */
+.plan-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 16px;
+}
+.plan-toggle button {
+  background: none;
+  border: none;
+  border-radius: 9px;
+  padding: 11px;
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.plan-toggle button.on {
+  background: var(--acid);
+  color: #0a0c10;
+}
+
+/* Selector de semanas */
+.plan-weeks {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+.plan-weeks::-webkit-scrollbar { display: none; }
+.plan-week {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.14s;
+  position: relative;
+}
+.plan-week.on {
+  background: var(--acid);
+  color: #0a0c10;
+  border-color: var(--acid);
+}
+.plan-week.now::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fire);
+}
+.plan-week.on.now::after { background: #0a0c10; }
+
+/* Foco semana */
+.plan-foco {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--acid);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #c9d3e0;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.plan-foco span {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--acid);
+  margin-right: 8px;
+}
+.plan-deload {
+  display: inline-block;
+  margin-left: 8px;
+  background: rgba(255, 92, 51, 0.15);
+  color: var(--fire);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 1px;
+}
+
+/* Días */
+.plan-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 18px;
+}
+.plan-day {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--dim);
+  border-radius: 9px;
+  padding: 10px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.14s;
+}
+.plan-day.on {
+  background: var(--acid);
+  color: #0a0c10;
+  border-color: var(--acid);
+}
+
+/* Contenido */
+.plan-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.plan-empty, .plan-rest {
+  font-size: 13px;
+  color: var(--dim);
+  text-align: center;
+  padding: 24px 0;
+  line-height: 1.5;
+}
+
+/* Comidas */
+.plan-meal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 16px;
+}
+.plan-meal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.plan-meal-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--acid);
+}
+.plan-meal-kcal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--dim);
+}
+.plan-meal-desc {
+  font-size: 14px;
+  color: #d4dde8;
+  line-height: 1.5;
+}
+.plan-meal-prot {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ice);
+  background: rgba(56, 214, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+/* Macros del día */
+.plan-macros {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.plan-macros div {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 13px 6px;
+  text-align: center;
+}
+.plan-macros span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 5px;
+}
+.plan-macros b {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--acid);
+}
+
+/* Sesión rutina */
+.plan-session {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 16px;
+}
+.plan-session h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+.plan-cardio {
+  font-size: 12.5px;
+  color: var(--ice);
+  margin-top: 8px;
+}
+.plan-mov {
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+.plan-mov b { color: #c9d3e0; }
+
+/* Tabla ejercicios */
+.plan-ex-table {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.plan-ex-head {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.plan-ex-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(35, 42, 53, 0.5);
+  align-items: center;
+}
+.plan-ex-row:last-child { border: none; }
+.plan-ex-name {
+  font-size: 13px;
+  color: var(--txt);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.plan-ex-name em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--dim);
+}
+.plan-ex-sr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--acid);
+  white-space: nowrap;
+  text-align: right;
+}
+.plan-ex-rest {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--dim);
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-toggle button, .plan-week, .plan-day { transition: none; }
+}

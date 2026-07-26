@@ -1,0 +1,416 @@
+/* ============================================================
+   PROTOCOLO 60 — REGISTRAR
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
+
+.reg-wrap {
+  --bg: #0a0c10;
+  --panel: #12161d;
+  --panel2: #171c25;
+  --line: #232a35;
+  --txt: #e8edf5;
+  --dim: #7d8899;
+  --acid: #c8ff2f;
+  --fire: #ff5c33;
+  --ice: #38d6ff;
+  --gold: #ffb627;
+  font-family: 'Inter', sans-serif;
+  color: var(--txt);
+}
+.reg-wrap * { box-sizing: border-box; }
+
+.reg-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.reg-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+.reg-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  color: var(--acid);
+}
+
+/* Sub-tabs */
+.reg-subtabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.reg-subtab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 4px;
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s;
+  -webkit-tap-highlight-color: transparent;
+}
+.reg-subtab span { font-size: 18px; }
+.reg-subtab.on {
+  background: var(--acid);
+  color: #0a0c10;
+  border-color: var(--acid);
+}
+.reg-subtab:active { transform: scale(0.96); }
+
+/* Card */
+.reg-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.reg-card-desc {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.reg-card-desc b { color: var(--txt); }
+
+/* Fields */
+.reg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.reg-field label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.reg-field input {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 14px;
+  color: var(--txt);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  transition: 0.16s;
+}
+.reg-field input::placeholder { color: #4b5563; }
+.reg-field input:focus {
+  outline: none;
+  border-color: var(--acid);
+  box-shadow: 0 0 0 3px rgba(200, 255, 47, 0.12);
+}
+.reg-field.big input {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  text-align: center;
+  color: var(--acid);
+}
+
+.reg-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.reg-grid2 .reg-field { margin-bottom: 4px; }
+
+/* Botón guardar */
+.reg-save {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--acid);
+  color: #0a0c10;
+  border: none;
+  border-radius: 11px;
+  padding: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.reg-save:active:not(:disabled) { transform: scale(0.98); }
+.reg-save:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Quick add agua */
+.reg-quick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.reg-quick button {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 12px 4px;
+  color: var(--ice);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.14s;
+}
+.reg-quick button:active {
+  transform: scale(0.95);
+  border-color: var(--ice);
+}
+
+/* Chips momento */
+.reg-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.reg-chip {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 15px;
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.14s;
+}
+.reg-chip.on {
+  background: rgba(200, 255, 47, 0.12);
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+/* Lista comidas con check */
+.reg-meals {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.reg-meal {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: 0.16s;
+  -webkit-tap-highlight-color: transparent;
+}
+.reg-meal:active:not(:disabled) { transform: scale(0.99); }
+.reg-meal.done {
+  border-color: rgba(200, 255, 47, 0.4);
+  background: rgba(200, 255, 47, 0.05);
+  cursor: default;
+}
+.reg-check {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a0c10;
+  font-size: 15px;
+  font-weight: 800;
+  transition: 0.16s;
+}
+.reg-check.on {
+  background: var(--acid);
+  border-color: var(--acid);
+}
+.reg-meal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.reg-meal-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--acid);
+}
+.reg-meal-desc {
+  font-size: 12.5px;
+  color: #c9d3e0;
+  line-height: 1.4;
+}
+.reg-meal-kcal {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--txt);
+  flex-shrink: 0;
+}
+
+.reg-empty {
+  font-size: 13px;
+  color: var(--dim);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Toast */
+.reg-toast {
+  position: fixed;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--acid);
+  color: #0a0c10;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 60;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  animation: reg-toast-in 0.25s ease;
+}
+@keyframes reg-toast-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reg-subtab, .reg-meal, .reg-save, .reg-toast { transition: none; animation: none; }
+}
+
+/* ---------------- SINCRONIZANDO ---------------- */
+.reg-sync {
+  display: inline-block;
+  margin-left: 10px;
+  font-style: normal;
+  color: var(--gold);
+  animation: reg-pulse 1.2s ease-in-out infinite;
+}
+@keyframes reg-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ---------------- YA REGISTRADO HOY ---------------- */
+.reg-done-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 4px 2px;
+}
+.reg-done-check {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--acid);
+  color: #0a0c10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+}
+.reg-done-banner b {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  color: var(--acid);
+  display: block;
+  margin-bottom: 4px;
+}
+.reg-done-banner p {
+  font-size: 12.5px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+/* ---------------- GYM ETAPAS ---------------- */
+.reg-etapas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.reg-etapa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+}
+.reg-etapa-name {
+  font-size: 13px;
+  color: #c9d3e0;
+  flex: 1;
+}
+.reg-etapa input {
+  width: 90px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--acid);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  text-align: right;
+}
+.reg-etapa input::placeholder {
+  color: #4b5563;
+}
+.reg-etapa input:focus {
+  outline: none;
+  border-color: var(--acid);
+  box-shadow: 0 0 0 3px rgba(200, 255, 47, 0.12);
+}
+.reg-etapa-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(200, 255, 47, 0.08);
+  border: 1px solid rgba(200, 255, 47, 0.25);
+  border-radius: 11px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.reg-etapa-total span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+}
+.reg-etapa-total b {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--acid);
+}
+.reg-etapa-total b i {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--dim);
+  margin-left: 2px;
+}
