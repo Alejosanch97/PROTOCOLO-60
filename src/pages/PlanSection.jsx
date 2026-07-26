@@ -27,6 +27,24 @@ const fetchSheet = async (sheet) => {
   }
 };
 
+// Ejercicios que NO tienen GIF (rutina_id + orden). Ej: "25" = rutina 2, orden 5.
+const SIN_VIDEO = new Set(["25"]);
+
+/**
+ * Arma la ruta del GIF de un ejercicio con la convención {rutina_id}{orden}.gif.
+ * Ej: rutina_id=1, orden=1 -> /ejercicios/11.gif
+ * Devuelve null si el ejercicio no tiene video.
+ */
+const videoDeEjercicio = (e) => {
+  const rid = (e.rutina_id || "").toString().trim();
+  const orden = (e.orden || "").toString().trim();
+  if (!rid || !orden) return null;
+  const clave = `${rid}${orden}`;
+  if (SIN_VIDEO.has(clave)) return null;
+  const ruta = `/ejercicios/${clave}.gif`;
+  return { img: ruta, original: ruta };
+};
+
 export const PlanSection = ({ user }) => {
   const [vista, setVista] = useState("menu"); // menu | rutina
   const [loading, setLoading] = useState(true);
@@ -41,6 +59,8 @@ export const PlanSection = ({ user }) => {
   const hoyDia = DIAS_JS[new Date().getDay()];
   const [semana, setSemana] = useState(1);
   const [dia, setDia] = useState(hoyDia === "Domingo" ? "Domingo" : hoyDia);
+  const [videoEj, setVideoEj] = useState(null); // ejercicio cuyo video se está viendo
+  const [videoError, setVideoError] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -216,6 +236,14 @@ export const PlanSection = ({ user }) => {
                         {clean(e.si_ocupado) && clean(e.si_ocupado) !== "—" && (
                           <em>si ocupado: {clean(e.si_ocupado)}</em>
                         )}
+                        {videoDeEjercicio(e) && (
+                          <button
+                            className="plan-ex-video"
+                            onClick={() => { setVideoError(false); setVideoEj(e); }}
+                          >
+                            ▶ Ver video
+                          </button>
+                        )}
                       </span>
                       <span className="plan-ex-sr">{clean(e.series)} × {clean(e.repeticiones)}</span>
                       <span className="plan-ex-rest">{clean(e.descanso)}</span>
@@ -229,6 +257,41 @@ export const PlanSection = ({ user }) => {
           )}
         </div>
       )}
+
+      {/* MODAL DE VIDEO */}
+      {videoEj && (() => {
+        const v = videoDeEjercicio(videoEj);
+        return (
+          <div className="plan-video-overlay" onClick={() => setVideoEj(null)}>
+            <div className="plan-video-modal" onClick={(ev) => ev.stopPropagation()}>
+              <div className="plan-video-head">
+                <span>{clean(videoEj.nombre_ejercicio)}</span>
+                <button className="plan-video-close" onClick={() => setVideoEj(null)}>✕</button>
+              </div>
+              <div className="plan-video-body">
+                {!videoError ? (
+                  <img
+                    src={v.img}
+                    alt={clean(videoEj.nombre_ejercicio)}
+                    className="plan-video-gif"
+                    onError={() => setVideoError(true)}
+                  />
+                ) : (
+                  <div className="plan-video-fallback">
+                    <p>No se pudo cargar el video de este ejercicio.</p>
+                    <a href={v.original} target="_blank" rel="noopener noreferrer" className="plan-video-link">
+                      Abrir en otra pestaña
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div className="plan-video-foot">
+                <span>{clean(videoEj.series)} × {clean(videoEj.repeticiones)} · descanso {clean(videoEj.descanso)}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
