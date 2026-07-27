@@ -45,6 +45,15 @@ const fetchSheet = async (sheet) => {
     return [];
   }
 };
+
+// Caché en memoria de catálogos (casi nunca cambian). Persiste mientras la app esté abierta.
+const _cacheCatalogos = {};
+const fetchCatalogo = async (sheet) => {
+  if (_cacheCatalogos[sheet]) return _cacheCatalogos[sheet];
+  const data = await fetchSheet(sheet);
+  _cacheCatalogos[sheet] = data;
+  return data;
+};
 const fetchResumen = async (usuarioId, fecha) => {
   const res = await fetch(`${API_URL}?resumen=dia&usuario_id=${encodeURIComponent(usuarioId)}&fecha=${encodeURIComponent(fecha)}`);
   const txt = await res.text();
@@ -80,17 +89,21 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
   const diaSemana = DIAS[new Date().getDay()];
 
   /* ---------- Carga ---------- */
+  // Carga COMPLETA: catálogos (cacheados) + registros + resumen, TODO en paralelo.
   const cargar = useCallback(async (uid) => {
     setLoading(true);
-    const [cfg, pz, cm, pl, rs, re, aj, su] = await Promise.all([
-      fetchSheet("Perfil_Config"),
-      fetchSheet("Registro_Peso"),
-      fetchSheet("Plan_Comidas"),
-      fetchSheet("Planes"),
-      fetchSheet("Rutina_Semana"),
-      fetchSheet("Rutina_Ejercicios"),
-      fetchSheet("Ref_Ajustes"),
-      fetchSheet("Ref_Sustituciones"),
+    const hoyStr = localDay(new Date());
+    // Todo en paralelo: los catálogos salen del caché si ya se bajaron una vez
+    const [cfg, pz, cm, pl, rs, re, aj, su, r] = await Promise.all([
+      fetchCatalogo("Perfil_Config"),
+      fetchSheet("Registro_Peso"),          // cambia -> siempre fresco
+      fetchCatalogo("Plan_Comidas"),        // catálogo pesado -> cacheado
+      fetchCatalogo("Planes"),
+      fetchCatalogo("Rutina_Semana"),
+      fetchCatalogo("Rutina_Ejercicios"),
+      fetchCatalogo("Ref_Ajustes"),
+      fetchCatalogo("Ref_Sustituciones"),
+      fetchResumen(uid, hoyStr),            // en paralelo, ya no espera a las hojas
     ]);
     setConfig(cfg[0] || null);
     setPesos(pz);
@@ -100,10 +113,19 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     setRutinaEj(re);
     setAjustes(aj);
     setSusts(su);
-
-    const r = await fetchResumen(uid, localDay(new Date()));
     setResumen(r && r.status === "success" ? r : null);
     setLoading(false);
+  }, []);
+
+  // Recarga LIGERA: solo lo que cambia al registrar (peso + resumen). Sin bloquear con "loading".
+  const recargarLigero = useCallback(async (uid) => {
+    const hoyStr = localDay(new Date());
+    const [pz, r] = await Promise.all([
+      fetchSheet("Registro_Peso"),
+      fetchResumen(uid, hoyStr),
+    ]);
+    setPesos(pz);
+    setResumen(r && r.status === "success" ? r : null);
   }, []);
 
   useEffect(() => {
@@ -119,10 +141,10 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     cargar(uid);
   }, [propUser, navigate, cargar]);
 
-  // Recarga los datos cada vez que se vuelve a la pestaña Hoy (tras registrar en otra)
+  // Al volver a Hoy: recarga SOLO lo que cambia (rápido, sin pantalla de carga)
   useEffect(() => {
     if (tab === "hoy" && uidActual) {
-      cargar(uidActual);
+      recargarLigero(uidActual);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
