@@ -102,11 +102,15 @@
 /* ---------------- MAIN / WALL ---------------- */
 .p60-main {
   flex: 1;
-  padding: 18px 16px;
+  padding-top: 18px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
+  overflow-x: hidden;
+  width: 100%;
 }
 .p60-wall {
   display: flex;
