@@ -13,6 +13,21 @@ const toDate = (v) => {
   const d = new Date(v);
   return isNaN(d.getTime()) ? null : d;
 };
+
+// Revierte valores que Sheets convirtió en fecha (ej "10-15" -> "2026-10-15T...")
+// y los devuelve como el rango original "10-15".
+const fixReps = (v) => {
+  const s = clean(v);
+  if (!s) return "";
+  // Si viene como fecha ISO o Date parseable con pinta de fecha
+  const isoMatch = s.match(/^\d{4}-(\d{2})-(\d{2})T/);
+  if (isoMatch) {
+    // mes-día -> "mes-día" sin ceros a la izquierda
+    return `${Number(isoMatch[1])}-${Number(isoMatch[2])}`;
+  }
+  return s;
+};
+
 const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 const DIAS_JS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
@@ -245,7 +260,7 @@ export const PlanSection = ({ user }) => {
                           </button>
                         )}
                       </span>
-                      <span className="plan-ex-sr">{clean(e.series)} × {clean(e.repeticiones)}</span>
+                      <span className="plan-ex-sr">{clean(e.series)} × {fixReps(e.repeticiones)}</span>
                       <span className="plan-ex-rest">{clean(e.descanso)}</span>
                     </div>
                   ))}
@@ -286,7 +301,7 @@ export const PlanSection = ({ user }) => {
                 )}
               </div>
               <div className="plan-video-foot">
-                <span>{clean(videoEj.series)} × {clean(videoEj.repeticiones)} · descanso {clean(videoEj.descanso)}</span>
+                <span>{clean(videoEj.series)} × {fixReps(videoEj.repeticiones)} · descanso {clean(videoEj.descanso)}</span>
               </div>
             </div>
           </div>
