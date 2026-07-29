@@ -105,7 +105,7 @@
 .p60-main {
   flex: 1;
   width: 100%;
-  max-width: 640px;
+  /* max-width: 640px;  ← quítalo o súbelo */
   margin: 0 auto;
   padding-top: 18px;
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
@@ -656,22 +656,6 @@
   margin-top: 14px;
 }
 
-/* ---------------- DESKTOP (mejora, no foco) ---------------- */
-@media (min-width: 720px) {
-  .p60-wall {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .p60-hero,
-  .p60-tip {
-    grid-column: 1 / -1;
-  }
-  .p60-main {
-    max-width: 760px;
-    padding-bottom: 40px;
-  }
-}
 
  
 /* ---------------- LOADING STATE (mejorado) ---------------- */
