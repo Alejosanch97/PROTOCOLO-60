@@ -263,172 +263,177 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
 
   /* ============================================================
      RENDER: MURO "HOY"
+     Envuelto en .p60-page para que se comporte igual que
+     .plan-wrap y .prg-wrap (contenedor "tonto" que fluye
+     dentro de .p60-main y ocupa el ancho completo).
      ============================================================ */
   const renderHoy = () => (
-    <div className="p60-wall">
+    <div className="p60-page">
+      <div className="p60-wall">
 
-      {/* HÉROE — estado actual */}
-      <section className="p60-card p60-hero">
-        <div className="p60-hero-top">
-          <span className="p60-eyebrow">ESTADO ACTUAL</span>
-          <span className="p60-week">SEM {semanaActual}/12</span>
-        </div>
-        <div className="p60-hero-weight">
-          <b>{pesoActual.toFixed(2)}</b>
-          <span>kg</span>
-        </div>
-        <div className="p60-hero-sub">
-          {faltaKg > 0 ? (
-            <>Te faltan <b>{faltaKg.toFixed(1)} kg</b> para tu meta de {metaPeso} kg</>
-          ) : (
-            <>Meta alcanzada. ¡{metaPeso} kg!</>
-          )}
-        </div>
-        <div className="p60-progress">
-          <div className="p60-progress-bar" style={{ width: `${progresoPeso}%` }} />
-        </div>
-        <div className="p60-progress-labels">
-          <span>{pesoInicial} kg</span>
-          <span className="p60-progress-pct">{progresoPeso}%</span>
-          <span>{metaPeso} kg</span>
-        </div>
-      </section>
+        {/* HÉROE — estado actual */}
+        <section className="p60-card p60-hero">
+          <div className="p60-hero-top">
+            <span className="p60-eyebrow">ESTADO ACTUAL</span>
+            <span className="p60-week">SEM {semanaActual}/12</span>
+          </div>
+          <div className="p60-hero-weight">
+            <b>{pesoActual.toFixed(2)}</b>
+            <span>kg</span>
+          </div>
+          <div className="p60-hero-sub">
+            {faltaKg > 0 ? (
+              <>Te faltan <b>{faltaKg.toFixed(1)} kg</b> para tu meta de {metaPeso} kg</>
+            ) : (
+              <>Meta alcanzada. ¡{metaPeso} kg!</>
+            )}
+          </div>
+          <div className="p60-progress">
+            <div className="p60-progress-bar" style={{ width: `${progresoPeso}%` }} />
+          </div>
+          <div className="p60-progress-labels">
+            <span>{pesoInicial} kg</span>
+            <span className="p60-progress-pct">{progresoPeso}%</span>
+            <span>{metaPeso} kg</span>
+          </div>
+        </section>
 
-      {/* META SEMANAL — dónde deberías estar esta semana */}
-      {metaSemanal && (
-        <section className="p60-card p60-metasem" style={{ "--estado": estadoColor[metaSemanal.estado] || "var(--dim)" }}>
+        {/* META SEMANAL — dónde deberías estar esta semana */}
+        {metaSemanal && (
+          <section className="p60-card p60-metasem" style={{ "--estado": estadoColor[metaSemanal.estado] || "var(--dim)" }}>
+            <div className="p60-card-head">
+              <span className="p60-eyebrow">META DE LA SEMANA {semanaActual}</span>
+              <span className="p60-dot-estado" />
+            </div>
+            <div className="p60-metasem-row">
+              <div className="p60-metasem-target">
+                <span>DEBERÍAS PESAR</span>
+                <b>{metaSemanal.metaPesoSemana}<i>kg</i></b>
+              </div>
+              <div className="p60-metasem-vs">vs</div>
+              <div className="p60-metasem-real">
+                <span>PESO ACTUAL</span>
+                <b>{pesoActual.toFixed(1)}<i>kg</i></b>
+              </div>
+            </div>
+            <p className="p60-metasem-msg">{metaSemanal.mensaje}</p>
+          </section>
+        )}
+
+        {/* DÉFICIT DE HOY */}
+        <section className="p60-card p60-deficit" style={{ "--estado": estadoColor[resumen?.estado] || "var(--dim)" }}>
           <div className="p60-card-head">
-            <span className="p60-eyebrow">META DE LA SEMANA {semanaActual}</span>
+            <span className="p60-eyebrow">DÉFICIT DE HOY</span>
             <span className="p60-dot-estado" />
           </div>
-          <div className="p60-metasem-row">
-            <div className="p60-metasem-target">
-              <span>DEBERÍAS PESAR</span>
-              <b>{metaSemanal.metaPesoSemana}<i>kg</i></b>
+          {resumen ? (
+            <>
+              <div className="p60-deficit-num">
+                <b>{num(resumen.deficit_kcal)}</b>
+                <span>kcal</span>
+              </div>
+              <p className="p60-deficit-msg">{clean(resumen.mensaje)}</p>
+              <div className="p60-deficit-break">
+                <div><span>GASTO</span><b>{num(resumen.gasto_total_kcal)}</b></div>
+                <div><span>INGESTA</span><b>{num(resumen.ingesta_total_kcal)}</b></div>
+                <div><span>PROTEÍNA</span><b>{num(resumen.proteina_plan_g)}g</b></div>
+              </div>
+            </>
+          ) : (
+            <div className="p60-empty-inline">
+              Aún no hay datos de hoy. Registra tu gasto del Garmin para ver tu déficit.
+              <button className="p60-mini-btn" onClick={() => setTab("registrar")}>Registrar ahora</button>
             </div>
-            <div className="p60-metasem-vs">vs</div>
-            <div className="p60-metasem-real">
-              <span>PESO ACTUAL</span>
-              <b>{pesoActual.toFixed(1)}<i>kg</i></b>
-            </div>
-          </div>
-          <p className="p60-metasem-msg">{metaSemanal.mensaje}</p>
+          )}
         </section>
-      )}
 
-      {/* DÉFICIT DE HOY */}
-      <section className="p60-card p60-deficit" style={{ "--estado": estadoColor[resumen?.estado] || "var(--dim)" }}>
-        <div className="p60-card-head">
-          <span className="p60-eyebrow">DÉFICIT DE HOY</span>
-          <span className="p60-dot-estado" />
-        </div>
-        {resumen ? (
-          <>
-            <div className="p60-deficit-num">
-              <b>{num(resumen.deficit_kcal)}</b>
-              <span>kcal</span>
+        {/* META SEMANAL DE KCAL */}
+        <section className="p60-card p60-kcal-week">
+          <div className="p60-card-head">
+            <span className="p60-eyebrow">GASTO REGISTRADO HOY</span>
+          </div>
+          <div className="p60-kcal-row">
+            <div className="p60-ring" style={{ "--pct": Math.min(100, Math.round((gastoHoy / (metaSemanalKcal / 7)) * 100)) }}>
+              <span>{Math.min(100, Math.round((gastoHoy / (metaSemanalKcal / 7)) * 100))}%</span>
             </div>
-            <p className="p60-deficit-msg">{clean(resumen.mensaje)}</p>
-            <div className="p60-deficit-break">
-              <div><span>GASTO</span><b>{num(resumen.gasto_total_kcal)}</b></div>
-              <div><span>INGESTA</span><b>{num(resumen.ingesta_total_kcal)}</b></div>
-              <div><span>PROTEÍNA</span><b>{num(resumen.proteina_plan_g)}g</b></div>
+            <div className="p60-kcal-info">
+              <b>{gastoHoy} <i>kcal</i></b>
+              <span>Meta diaria aprox: {Math.round(metaSemanalKcal / 7)} kcal · {metaSemanalKcal} / semana</span>
             </div>
-          </>
-        ) : (
-          <div className="p60-empty-inline">
-            Aún no hay datos de hoy. Registra tu gasto del Garmin para ver tu déficit.
-            <button className="p60-mini-btn" onClick={() => setTab("registrar")}>Registrar ahora</button>
           </div>
-        )}
-      </section>
+        </section>
 
-      {/* META SEMANAL DE KCAL */}
-      <section className="p60-card p60-kcal-week">
-        <div className="p60-card-head">
-          <span className="p60-eyebrow">GASTO REGISTRADO HOY</span>
-        </div>
-        <div className="p60-kcal-row">
-          <div className="p60-ring" style={{ "--pct": Math.min(100, Math.round((gastoHoy / (metaSemanalKcal / 7)) * 100)) }}>
-            <span>{Math.min(100, Math.round((gastoHoy / (metaSemanalKcal / 7)) * 100))}%</span>
+        {/* ENTRENAMIENTO DE HOY */}
+        <section className="p60-card">
+          <div className="p60-card-head">
+            <span className="p60-eyebrow">ENTRENAMIENTO · {diaSemana.toUpperCase()}</span>
           </div>
-          <div className="p60-kcal-info">
-            <b>{gastoHoy} <i>kcal</i></b>
-            <span>Meta diaria aprox: {Math.round(metaSemanalKcal / 7)} kcal · {metaSemanalKcal} / semana</span>
-          </div>
-        </div>
-      </section>
+          {entrenoHoy ? (
+            <>
+              <h3 className="p60-card-title-lg">{clean(entrenoHoy.sesion) || "Sesión"}</h3>
+              {clean(entrenoHoy.cardio_incluido) && clean(entrenoHoy.cardio_incluido) !== "—" && (
+                <p className="p60-card-note">🏃 {clean(entrenoHoy.cardio_incluido)}</p>
+              )}
+              {ejerciciosHoy.length > 0 ? (
+                <ul className="p60-ex-list">
+                  {ejerciciosHoy.slice(0, 4).map((e, i) => (
+                    <li key={i}>
+                      <span>{clean(e.nombre_ejercicio)}</span>
+                      <b>{clean(e.series)} × {clean(e.repeticiones)}</b>
+                    </li>
+                  ))}
+                  {ejerciciosHoy.length > 4 && (
+                    <li className="p60-ex-more">+{ejerciciosHoy.length - 4} ejercicios más</li>
+                  )}
+                </ul>
+              ) : (
+                <p className="p60-rest-note">Día de descanso o cardio libre. Recupera bien.</p>
+              )}
+              <button className="p60-card-btn" onClick={() => setTab("plan")}>Ver rutina completa</button>
+            </>
+          ) : (
+            <p className="p60-empty-inline">No hay entrenamiento asignado para hoy.</p>
+          )}
+        </section>
 
-      {/* ENTRENAMIENTO DE HOY */}
-      <section className="p60-card">
-        <div className="p60-card-head">
-          <span className="p60-eyebrow">ENTRENAMIENTO · {diaSemana.toUpperCase()}</span>
-        </div>
-        {entrenoHoy ? (
-          <>
-            <h3 className="p60-card-title-lg">{clean(entrenoHoy.sesion) || "Sesión"}</h3>
-            {clean(entrenoHoy.cardio_incluido) && clean(entrenoHoy.cardio_incluido) !== "—" && (
-              <p className="p60-card-note">🏃 {clean(entrenoHoy.cardio_incluido)}</p>
-            )}
-            {ejerciciosHoy.length > 0 ? (
-              <ul className="p60-ex-list">
-                {ejerciciosHoy.slice(0, 4).map((e, i) => (
+        {/* ALIMENTACIÓN DE HOY */}
+        <section className="p60-card">
+          <div className="p60-card-head">
+            <span className="p60-eyebrow">ALIMENTACIÓN · HOY</span>
+            {planSemana && <span className="p60-week">{num(planSemana.kcal_objetivo_dia)} kcal</span>}
+          </div>
+          {comidasHoy.length > 0 ? (
+            <>
+              <ul className="p60-meal-list">
+                {comidasHoy.map((c, i) => (
                   <li key={i}>
-                    <span>{clean(e.nombre_ejercicio)}</span>
-                    <b>{clean(e.series)} × {clean(e.repeticiones)}</b>
+                    <div className="p60-meal-when">{clean(c.momento)}</div>
+                    <div className="p60-meal-desc">{clean(c.descripcion)}</div>
+                    <div className="p60-meal-kcal">{num(c.kcal_aprox)}</div>
                   </li>
                 ))}
-                {ejerciciosHoy.length > 4 && (
-                  <li className="p60-ex-more">+{ejerciciosHoy.length - 4} ejercicios más</li>
-                )}
               </ul>
-            ) : (
-              <p className="p60-rest-note">Día de descanso o cardio libre. Recupera bien.</p>
-            )}
-            <button className="p60-card-btn" onClick={() => setTab("plan")}>Ver rutina completa</button>
-          </>
-        ) : (
-          <p className="p60-empty-inline">No hay entrenamiento asignado para hoy.</p>
-        )}
-      </section>
+              <button className="p60-card-btn" onClick={() => setTab("registrar")}>Marcar lo que comí</button>
+            </>
+          ) : (
+            <p className="p60-empty-inline">No hay comidas cargadas para hoy en el plan.</p>
+          )}
+        </section>
 
-      {/* ALIMENTACIÓN DE HOY */}
-      <section className="p60-card">
-        <div className="p60-card-head">
-          <span className="p60-eyebrow">ALIMENTACIÓN · HOY</span>
-          {planSemana && <span className="p60-week">{num(planSemana.kcal_objetivo_dia)} kcal</span>}
-        </div>
-        {comidasHoy.length > 0 ? (
-          <>
-            <ul className="p60-meal-list">
-              {comidasHoy.map((c, i) => (
-                <li key={i}>
-                  <div className="p60-meal-when">{clean(c.momento)}</div>
-                  <div className="p60-meal-desc">{clean(c.descripcion)}</div>
-                  <div className="p60-meal-kcal">{num(c.kcal_aprox)}</div>
-                </li>
+        {/* TIP DEL DÍA */}
+        <section className="p60-card p60-tip">
+          <span className="p60-tip-tag">{tips[tipIdx]?.tag}</span>
+          <p>{tips[tipIdx]?.txt}</p>
+          {tips.length > 1 && (
+            <div className="p60-tip-dots">
+              {tips.slice(0, 6).map((_, i) => (
+                <span key={i} className={i === tipIdx % 6 ? "on" : ""} />
               ))}
-            </ul>
-            <button className="p60-card-btn" onClick={() => setTab("registrar")}>Marcar lo que comí</button>
-          </>
-        ) : (
-          <p className="p60-empty-inline">No hay comidas cargadas para hoy en el plan.</p>
-        )}
-      </section>
+            </div>
+          )}
+        </section>
 
-      {/* TIP DEL DÍA */}
-      <section className="p60-card p60-tip">
-        <span className="p60-tip-tag">{tips[tipIdx]?.tag}</span>
-        <p>{tips[tipIdx]?.txt}</p>
-        {tips.length > 1 && (
-          <div className="p60-tip-dots">
-            {tips.slice(0, 6).map((_, i) => (
-              <span key={i} className={i === tipIdx % 6 ? "on" : ""} />
-            ))}
-          </div>
-        )}
-      </section>
-
+      </div>
     </div>
   );
 
@@ -458,14 +463,16 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
       {/* CONTENIDO */}
       <main className="p60-main">
         {loading && tab === "hoy" ? (
-          <div className="p60-loading-state">
-            <div className="p60-loading-orb">
-              <span className="p60-loading-ring" />
-              <span className="p60-loading-core">60</span>
-            </div>
-            <p className="p60-loading-txt">Cargando tus datos…</p>
-            <div className="p60-skeleton-wall">
-              {[0, 1, 2].map((i) => <div key={i} className="p60-skeleton" />)}
+          <div className="p60-page">
+            <div className="p60-loading-state">
+              <div className="p60-loading-orb">
+                <span className="p60-loading-ring" />
+                <span className="p60-loading-core">60</span>
+              </div>
+              <p className="p60-loading-txt">Cargando tus datos…</p>
+              <div className="p60-skeleton-wall">
+                {[0, 1, 2].map((i) => <div key={i} className="p60-skeleton" />)}
+              </div>
             </div>
           </div>
         ) : (
