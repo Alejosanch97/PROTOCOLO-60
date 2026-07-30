@@ -728,10 +728,17 @@
   }
 }
 
-
 .p60-dash{
-    width:100vw;
-    max-width:100vw;
+    width:100%;
+    min-width:100%;
+    max-width:none;
+
+    min-height:100vh;
+    min-height:100dvh;
+
+    display:flex;
+    flex-direction:column;
+
     margin:0;
     padding:0;
 }
@@ -742,6 +749,10 @@
     padding-left:14px;
     padding-right:14px;
     box-sizing:border-box;
+    flex:1;
+    overflow-y:auto;
+    padding-bottom:120px;
+    -webkit-overflow-scrolling:touch;
 }
 
 .p60-page,
@@ -750,4 +761,16 @@
     width:100%;
     max-width:none;
     box-sizing:border-box;
+}
+
+
+html,
+body,
+#root{
+    height:100%;
+    overflow-x:hidden;
+}
+
+body{
+    margin:0;
 }
