@@ -750,9 +750,8 @@
     padding-right:14px;
     box-sizing:border-box;
     flex:1;
-    overflow-y:auto;
-    padding-bottom:120px;
-    -webkit-overflow-scrolling:touch;
+   
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .p60-page,
