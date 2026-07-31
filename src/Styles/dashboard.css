@@ -18,8 +18,8 @@
 
   width: 100%;
   max-width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100%;
+  min-height: 100%;
   background: var(--bg);
   color: var(--txt);
   font-family: 'Inter', sans-serif;
@@ -34,7 +34,7 @@
 }
 
 .p60-loader {
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -733,8 +733,8 @@
     min-width:100%;
     max-width:none;
 
-    min-height:100vh;
-    min-height:100dvh;
+    min-height: 100%;
+    min-height:100%;
 
     display:flex;
     flex-direction:column;
