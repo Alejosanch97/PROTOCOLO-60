@@ -62,14 +62,14 @@ export const RegistrarSection = ({ user }) => {
   const [extra, setExtra] = useState({ momento: "Snack", descripcion: "", kcal: "" });
 
   /* ---------- Carga ---------- */
-    const cargar = useCallback(async (forzarRed = false) => {
+  const cargar = useCallback(async (forzarRed = false) => {
     let configData, comidasData, cumplidosData, gastoRows, pesoRows, aguaRows;
-    
+
     await Promise.all([
       new Promise((resolve) => {
         fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data;
-          console.log("Registrar - Perfil_Config desde:", origen);
+          configData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Registrar - Perfil_Config desde:", origen, "usuario:", uid);
           resolve();
         }, forzarRed);
       }),
@@ -109,7 +109,7 @@ export const RegistrarSection = ({ user }) => {
         }, forzarRed);
       }),
     ]);
-    
+
     setConfig(configData?.[0] || null);
     setComidas(comidasData || []);
     setCumplidos(cumplidosData || []);
@@ -131,11 +131,18 @@ export const RegistrarSection = ({ user }) => {
     const hoyStr = localDay(new Date());
     const yaHay = (rows) =>
       rows.some((r) => clean(r.usuario_id) === uid && localDay(r.fecha) === hoyStr);
+    // Verificar si ya hay etapas registradas hoy
+    const actividadRows = await new Promise((resolve) => {
+      fetchSheetCached("Registro_Actividad", (data, origen) => {
+        resolve(data);
+      }, forzarRed);
+    });
+
     setHechoHoy({
       gasto: yaHay(gastoRows || []),
       peso: yaHay(pesoRows || []),
       agua: yaHay(aguaRows || []),
-      actividad: false,
+      actividad: yaHay(actividadRows || []),
     });
   }, [uid]);
 
@@ -149,7 +156,8 @@ export const RegistrarSection = ({ user }) => {
   };
 
   const semanaActual = useMemo(() => {
-    const inicio = toDate(config?.fecha_inicio);
+    const userConfig = Array.isArray(config) ? config[0] : config;
+    const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
@@ -228,7 +236,8 @@ export const RegistrarSection = ({ user }) => {
   const guardarAgua = () => {
     if (!clean(agua)) return mostrarToast("Escribe los ml");
     const snapshot = agua;
-    const meta = num(config?.meta_agua_ml_dia) || 2900;
+    const userConfig = Array.isArray(config) ? config[0] : config;
+    const meta = num(userConfig?.meta_agua_ml_dia) || 2900;
     setAgua("");
     setHechoHoy((h) => ({ ...h, agua: true }));
     mostrarToast("Agua registrada");
@@ -270,7 +279,7 @@ export const RegistrarSection = ({ user }) => {
       .finally(() => setSyncing(false));
   };
 
-    const guardarEtapas = () => {
+  const guardarEtapas = () => {
     const aGuardar = ETAPAS.filter((e) => num(etapas[e.id]) > 0);
     if (aGuardar.length === 0) return mostrarToast("Anota al menos una etapa");
     const snapshot = { ...etapas };
@@ -307,9 +316,9 @@ export const RegistrarSection = ({ user }) => {
   };
 
   // Marcar comida del plan (chulito) — instantáneo, sincroniza detrás
-    // Marcar comida del plan (chulito) — instantáneo, sincroniza detrás
-    // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
-    // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
+  // Marcar comida del plan (chulito) — instantáneo, sincroniza detrás
+  // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
+  // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
   const toggleComida = (comida) => {
     const id = clean(comida.id);
     const estaMarcada = marcados.has(id);
@@ -328,7 +337,7 @@ export const RegistrarSection = ({ user }) => {
     // 2) SINCRONIZA por detrás usando findOrUpdate
     setSyncing(true);
     const nuevoEstado = estaMarcada ? "NO" : "SI";
-    
+
     // Usamos findOrUpdate: busca por usuario_id, fecha y plan_comida_id
     // Si existe, actualiza; si no, crea
     const payload = {
@@ -425,13 +434,13 @@ export const RegistrarSection = ({ user }) => {
               <p className="reg-card-desc">Copia el <b>Total</b> de calorías quemadas de tu Garmin. Es lo que define tu déficit de hoy.</p>
               <div className="reg-field big">
                 <label>Gasto total (kcal)</label>
-                <input type="number" inputMode="numeric" value={gasto.total} onChange={(e) => setGasto({ ...gasto, total: e.target.value })} placeholder="2820" />
+                <input type="text" inputMode="decimal" value={gasto.total} onChange={(e) => setGasto({ ...gasto, total: e.target.value })} placeholder="2820" />
               </div>
               <div className="reg-grid2">
-                <div className="reg-field"><label>Activo</label><input type="number" value={gasto.activo} onChange={(e) => setGasto({ ...gasto, activo: e.target.value })} placeholder="915" /></div>
-                <div className="reg-field"><label>Reposo</label><input type="number" value={gasto.reposo} onChange={(e) => setGasto({ ...gasto, reposo: e.target.value })} placeholder="1705" /></div>
-                <div className="reg-field"><label>Pasos</label><input type="number" value={gasto.pasos} onChange={(e) => setGasto({ ...gasto, pasos: e.target.value })} placeholder="10644" /></div>
-                <div className="reg-field"><label>FC máx</label><input type="number" value={gasto.fc} onChange={(e) => setGasto({ ...gasto, fc: e.target.value })} placeholder="183" /></div>
+                <div className="reg-field"><label>Activo</label><input type="text" inputMode="decimal" value={gasto.activo} onChange={(e) => setGasto({ ...gasto, activo: e.target.value })} placeholder="915" /></div>
+                <div className="reg-field"><label>Reposo</label><input type="text" inputMode="decimal" value={gasto.reposo} onChange={(e) => setGasto({ ...gasto, reposo: e.target.value })} placeholder="1705" /></div>
+                <div className="reg-field"><label>Pasos</label><input type="text" inputMode="decimal" value={gasto.pasos} onChange={(e) => setGasto({ ...gasto, pasos: e.target.value })} placeholder="10644" /></div>
+                <div className="reg-field"><label>FC máx</label><input type="text" inputMode="decimal" value={gasto.fc} onChange={(e) => setGasto({ ...gasto, fc: e.target.value })} placeholder="183" /></div>
               </div>
               <button className="reg-save" onClick={guardarGasto}>Guardar gasto de hoy</button>
             </>
@@ -443,21 +452,22 @@ export const RegistrarSection = ({ user }) => {
       {/* ---------- GYM POR ETAPAS ---------- */}
       {sub === "gym" && (
         <div className="reg-card">
-          {hechoHoy.gasto ? (
-            <AvisoHecho texto="Ya registraste el gasto del Garmin de hoy. Las etapas son opcionales y se suman al gasto total." />
+          {hechoHoy.actividad ? (
+            <AvisoHecho texto="Ya registraste las etapas del día de hoy. Estos datos son solo informativos y no afectan el cálculo del déficit calórico." />
           ) : (
             <>
               <p className="reg-card-desc">
-                Anota las kcal de cada etapa de tu día. Se suman como tu gasto por actividad.
-                El déficit del día lo sigue calculando el <b>total del Garmin</b>.
+                Registra las kcal de cada etapa de tu día. <b>Estos datos son solo informativos</b> y no afectan el cálculo del déficit calórico.
+                <br />
+                El déficit se calcula <b>exclusivamente</b> con el gasto total del Garmin en la pestaña <b>"Gasto"</b>.
               </p>
               <div className="reg-etapas">
                 {ETAPAS.map((e) => (
                   <div className="reg-etapa" key={e.id}>
                     <span className="reg-etapa-name">{e.nombre}</span>
                     <input
-                      type="number"
-                      inputMode="numeric"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="kcal"
                       value={etapas[e.id] || ""}
                       onChange={(ev) => setEtapas({ ...etapas, [e.id]: ev.target.value })}
@@ -485,15 +495,15 @@ export const RegistrarSection = ({ user }) => {
               <p className="reg-card-desc">Datos de tu báscula inteligente. Solo el peso es obligatorio; el resto es opcional.</p>
               <div className="reg-field big">
                 <label>Peso (kg)</label>
-                <input type="number" step="0.01" inputMode="decimal" value={peso.peso_kg} onChange={(e) => setPeso({ ...peso, peso_kg: e.target.value })} placeholder="82.45" />
+                <input type="text" inputMode="decimal" value={peso.peso_kg} onChange={(e) => setPeso({ ...peso, peso_kg: e.target.value })} placeholder="82,45" />
               </div>
               <div className="reg-grid2">
-                <div className="reg-field"><label>Grasa %</label><input type="number" step="0.1" value={peso.grasa} onChange={(e) => setPeso({ ...peso, grasa: e.target.value })} placeholder="23" /></div>
-                <div className="reg-field"><label>IMC</label><input type="number" step="0.1" value={peso.imc} onChange={(e) => setPeso({ ...peso, imc: e.target.value })} placeholder="28.2" /></div>
-                <div className="reg-field"><label>Músculo esq. %</label><input type="number" step="0.1" value={peso.musculo} onChange={(e) => setPeso({ ...peso, musculo: e.target.value })} placeholder="49.8" /></div>
-                <div className="reg-field"><label>Masa muscular kg</label><input type="number" step="0.1" value={peso.masa_muscular} onChange={(e) => setPeso({ ...peso, masa_muscular: e.target.value })} placeholder="60.3" /></div>
-                <div className="reg-field"><label>TMB kcal</label><input type="number" value={peso.tmb} onChange={(e) => setPeso({ ...peso, tmb: e.target.value })} placeholder="1741" /></div>
-                <div className="reg-field"><label>Peso sin grasa</label><input type="number" step="0.1" value={peso.peso_sin_grasa} onChange={(e) => setPeso({ ...peso, peso_sin_grasa: e.target.value })} placeholder="63.5" /></div>
+                <div className="reg-field"><label>Grasa %</label><input type="text" inputMode="decimal" value={peso.grasa} onChange={(e) => setPeso({ ...peso, grasa: e.target.value })} placeholder="23" /></div>
+                <div className="reg-field"><label>IMC</label><input type="text" inputMode="decimal" value={peso.imc} onChange={(e) => setPeso({ ...peso, imc: e.target.value })} placeholder="28.2" /></div>
+                <div className="reg-field"><label>Músculo esq. %</label><input type="text" inputMode="decimal" value={peso.musculo} onChange={(e) => setPeso({ ...peso, musculo: e.target.value })} placeholder="49.8" /></div>
+                <div className="reg-field"><label>Masa muscular kg</label><input type="text" inputMode="decimal" value={peso.masa_muscular} onChange={(e) => setPeso({ ...peso, masa_muscular: e.target.value })} placeholder="60.3" /></div>
+                <div className="reg-field"><label>TMB kcal</label><input type="text" inputMode="decimal" value={peso.tmb} onChange={(e) => setPeso({ ...peso, tmb: e.target.value })} placeholder="1741" /></div>
+                <div className="reg-field"><label>Peso sin grasa</label><input type="text" inputMode="decimal" value={peso.peso_sin_grasa} onChange={(e) => setPeso({ ...peso, peso_sin_grasa: e.target.value })} placeholder="63.5" /></div>
               </div>
               <button className="reg-save" onClick={guardarPeso}>Registrar peso</button>
             </>
@@ -511,7 +521,7 @@ export const RegistrarSection = ({ user }) => {
               <p className="reg-card-desc">¿Cuánta agua llevas hoy? Meta: {num(config?.meta_agua_ml_dia) || 2900} ml.</p>
               <div className="reg-field big">
                 <label>Agua total (ml)</label>
-                <input type="number" inputMode="numeric" value={agua} onChange={(e) => setAgua(e.target.value)} placeholder="2900" />
+                <input type="text" inputMode="decimal" value={agua} onChange={(e) => setAgua(e.target.value)} placeholder="2900" />
               </div>
               <div className="reg-quick">
                 {[250, 500, 750, 1000].map((q) => (
@@ -555,7 +565,7 @@ export const RegistrarSection = ({ user }) => {
               ))}
             </div>
             <div className="reg-field"><label>¿Qué comiste?</label><input type="text" value={extra.descripcion} onChange={(e) => setExtra({ ...extra, descripcion: e.target.value })} placeholder="Papas fritas antojo" /></div>
-            <div className="reg-field"><label>Calorías (kcal)</label><input type="number" inputMode="numeric" value={extra.kcal} onChange={(e) => setExtra({ ...extra, kcal: e.target.value })} placeholder="320" /></div>
+            <div className="reg-field"><label>Calorías (kcal)</label><input type="text" inputMode="decimal" value={extra.kcal} onChange={(e) => setExtra({ ...extra, kcal: e.target.value })} placeholder="320" /></div>
             <button className="reg-save" onClick={guardarExtra}>Agregar extra</button>
           </div>
         </>

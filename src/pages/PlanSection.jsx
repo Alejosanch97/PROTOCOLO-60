@@ -75,15 +75,17 @@ export const PlanSection = ({ user }) => {
     await Promise.all([
       new Promise((resolve) => {
         fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data;
-          console.log("Plan - Perfil_Config desde:", origen);
+          const uid = clean(user?.id) || clean(user?.usuario_id) || "1";
+          configData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Plan - Perfil_Config desde:", origen, "usuario:", uid);
           resolve();
         }, forzarRed);
       }),
       new Promise((resolve) => {
+        const uid = clean(user?.id) || clean(user?.usuario_id) || "1";
         fetchSheetCached("Planes", (data, origen) => {
-          planesData = data;
-          console.log("Plan - Planes desde:", origen);
+          planesData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Plan - Planes desde:", origen, "usuario:", uid, "filas:", planesData.length);
           resolve();
         }, forzarRed);
       }),
@@ -131,8 +133,10 @@ export const PlanSection = ({ user }) => {
   }, [cargar]);
 
   // Semana actual del protocolo para resaltar
+  // Semana actual del protocolo para resaltar
   const semanaActual = useMemo(() => {
-    const inicio = toDate(config?.fecha_inicio);
+    const userConfig = Array.isArray(config) ? config[0] : config;
+    const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
@@ -142,8 +146,8 @@ export const PlanSection = ({ user }) => {
     setSemana(semanaActual);
   }, [semanaActual]);
 
-  const planSemana = useMemo(
-    () => planes.find((p) => clean(p.semana || p.id) === String(semana)) || planes[semana - 1] || null,
+    const planSemana = useMemo(
+    () => planes.find((p) => clean(p.id) === String(semana)) || planes[semana - 1] || null,
     [planes, semana]
   );
 

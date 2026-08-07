@@ -77,15 +77,15 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     await Promise.all([
       new Promise((resolve) => {
         fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data;
-          console.log("Perfil_Config desde:", origen);
+          configData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Perfil_Config desde:", origen, "usuario:", uid, "filas:", configData.length);
           resolve();
         }, forzarRed);
       }),
       new Promise((resolve) => {
         fetchSheetCached("Registro_Peso", (data, origen) => {
-          pesosData = data;
-          console.log("Registro_Peso desde:", origen);
+          pesosData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Registro_Peso desde:", origen, "usuario:", uid, "filas:", pesosData.length);
           resolve();
         }, forzarRed);
       }),
@@ -98,8 +98,8 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
       }),
       new Promise((resolve) => {
         fetchSheetCached("Planes", (data, origen) => {
-          planesData = data;
-          console.log("Planes desde:", origen);
+          planesData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Planes desde:", origen, "usuario:", uid, "filas:", planesData.length);
           resolve();
         }, forzarRed);
       }),
@@ -160,8 +160,9 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     await Promise.all([
       new Promise((resolve) => {
         fetchSheetCached("Registro_Peso", (data, origen) => {
-          setPesos(data);
-          console.log("Registro_Peso (ligero) desde:", origen);
+          const filtrados = data.filter((row) => clean(row.usuario_id) === uid);
+          setPesos(filtrados);
+          console.log("Registro_Peso (ligero) desde:", origen, "usuario:", uid, "filas:", filtrados.length);
           resolve();
         }, forzarRed);
       }),
@@ -213,27 +214,34 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     return ord[0] || null;
   }, [pesos]);
 
-  const pesoInicial = num(config?.peso_inicial_kg) || 82.45;
-  const metaPeso = num(config?.meta_peso_kg) || 73;
+  const userConfig = Array.isArray(config) ? config[0] : config;
+  const pesoInicial = num(userConfig?.peso_inicial_kg) || 82.45;
+  const metaPeso = num(userConfig?.meta_peso_kg) || 73;
   const pesoActual = ultimoPeso ? num(ultimoPeso.peso_kg) : pesoInicial;
   const faltaKg = Math.max(0, pesoActual - metaPeso);
   const perdidoKg = Math.max(0, pesoInicial - pesoActual);
   const totalCamino = Math.max(0.1, pesoInicial - metaPeso);
-  const progresoPeso = Math.min(100, Math.round((perdidoKg / totalCamino) * 100));
+  // Si no hay registros de peso o el peso actual es igual al inicial, el progreso es 0
+  const progresoPeso = (!ultimoPeso || pesoActual >= pesoInicial)
+    ? 0
+    : Math.min(100, Math.round((perdidoKg / totalCamino) * 100));
 
   // Semana actual del protocolo según fecha de inicio
+  // Semana actual del protocolo según fecha de inicio del usuario
   const semanaActual = useMemo(() => {
-    const inicio = toDate(config?.fecha_inicio);
+    const userConfig = Array.isArray(config) && config.length > 0 ? config[0] : null;
+    const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
   }, [config]);
 
   const planSemana = useMemo(
-    () => planes.find((p) => clean(p.semana || p.id) === String(semanaActual)) || planes[semanaActual - 1] || null,
+    () => planes.find((p) => clean(p.id) === String(semanaActual)) || planes[semanaActual - 1] || null,
     [planes, semanaActual]
   );
 
+  // Meta de peso de la semana actual (de la tabla Planes) y comparación con el peso real
   // Meta de peso de la semana actual (de la tabla Planes) y comparación con el peso real
   const metaSemanal = useMemo(() => {
     if (!planSemana) return null;
@@ -275,7 +283,7 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
   }, [entrenoHoy, rutinaEj]);
 
   // Meta semanal de kcal por actividad (7700)
-  const metaSemanalKcal = num(config?.meta_kcal_semanal_ejercicio) || 7700;
+  const metaSemanalKcal = num(userConfig?.meta_kcal_semanal_ejercicio) || 7700;
   const gastoHoy = resumen ? num(resumen.gasto_total_kcal) : 0;
 
   // Tips rotativos desde Ref_Ajustes + Ref_Sustituciones
@@ -501,7 +509,7 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
   return (
     <div className="p60-dash">
       {/* TOP BAR */}
-            {/* TOP BAR */}
+      {/* TOP BAR */}
       <header className="p60-topbar">
         <div className="p60-topbar-left">
           <span className="p60-topbar-brand">PROTOCOLO <b>60</b></span>

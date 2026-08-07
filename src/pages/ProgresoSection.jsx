@@ -150,8 +150,8 @@ export const ProgresoSection = ({ user }) => {
     await Promise.all([
       new Promise((resolve) => {
         fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data;
-          console.log("Progreso - Perfil_Config desde:", origen);
+          configData = data.filter((row) => clean(row.usuario_id) === uid);
+          console.log("Progreso - Perfil_Config desde:", origen, "usuario:", uid);
           resolve();
         }, forzarRed);
       }),
@@ -185,9 +185,10 @@ export const ProgresoSection = ({ user }) => {
   const grasaPts = serie.filter((s) => clean(s.row.grasa_corporal_pct)).map((s) => ({ v: num(s.row.grasa_corporal_pct), fecha: fmtDia(s.d) }));
   const musculoPts = serie.filter((s) => clean(s.row.musculo_esqueletico_pct)).map((s) => ({ v: num(s.row.musculo_esqueletico_pct), fecha: fmtDia(s.d) }));
 
-  const pesoInicial = num(config?.peso_inicial_kg) || (pesoPts[0]?.v ?? 82.45);
-  const metaPeso = num(config?.meta_peso_kg) || 73;
-  const metaGrasa = num(config?.meta_grasa_pct) || 15;
+  const userConfig = Array.isArray(config) ? config[0] : config;
+  const pesoInicial = num(userConfig?.peso_inicial_kg) || (pesoPts[0]?.v ?? 82.45);
+  const metaPeso = num(userConfig?.meta_peso_kg) || 73;
+  const metaGrasa = num(userConfig?.meta_grasa_pct) || 15;
   const pesoActual = pesoPts.length ? pesoPts[pesoPts.length - 1].v : pesoInicial;
 
   const perdido = Math.max(0, pesoInicial - pesoActual);
@@ -214,7 +215,8 @@ export const ProgresoSection = ({ user }) => {
   const guardarSemanal = async () => {
     setSemSaving(true);
     try {
-      const inicio = toDate(config?.fecha_inicio);
+      const userConfig = Array.isArray(config) ? config[0] : config;
+      const inicio = toDate(userConfig?.fecha_inicio);
       const semanaN = inicio ? Math.min(12, Math.max(1, Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24 * 7)) + 1)) : "";
       const hoyStr = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
       await postActionCached("Registro_Semanal", {
@@ -312,11 +314,11 @@ export const ProgresoSection = ({ user }) => {
         </div>
         <div className="prg-meta-row">
           <span>Proteína diaria</span>
-          <b>{num(config?.proteina_objetivo_g) || 165} g</b>
+          <b>{num(userConfig?.proteina_objetivo_g) || 165} g</b>
         </div>
         <div className="prg-meta-row">
           <span>Déficit objetivo</span>
-          <b>{num(config?.deficit_objetivo_min) || 650}–{num(config?.deficit_objetivo_max) || 800} kcal</b>
+          <b>{num(userConfig?.deficit_objetivo_min) || 650}–{num(userConfig?.deficit_objetivo_max) || 800} kcal</b>
         </div>
       </div>
 
