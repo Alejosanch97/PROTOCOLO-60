@@ -501,16 +501,19 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
   return (
     <div className="p60-dash">
       {/* TOP BAR */}
+            {/* TOP BAR */}
       <header className="p60-topbar">
         <div className="p60-topbar-left">
           <span className="p60-topbar-brand">PROTOCOLO <b>60</b></span>
           <span className="p60-topbar-hi">Hola, {primerNombre}</span>
         </div>
-        <button className="p60-sync" onClick={() => {
-          invalidarTodo();
-          cargar(uidActual, true);
-        }} title="Sincronizar datos">⟳</button>
-        <button className="p60-logout" onClick={logout} title="Cerrar sesión">⏻</button>
+        <div className="p60-topbar-right">
+          <button className="p60-sync" onClick={() => {
+            invalidarTodo();
+            cargar(uidActual, true);
+          }} title="Sincronizar datos">⟳</button>
+          <button className="p60-logout" onClick={logout} title="Cerrar sesión">⏻</button>
+        </div>
       </header>
 
       {/* CONTENIDO */}
