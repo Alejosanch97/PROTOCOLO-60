@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "../Styles/plan.css";
+import { fetchSheetCached } from "./cacheProtocolo";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -30,17 +31,6 @@ const fixReps = (v) => {
 
 const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 const DIAS_JS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
-const fetchSheet = async (sheet) => {
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-  const txt = await res.text();
-  try {
-    const d = JSON.parse(txt);
-    return Array.isArray(d) ? d : [];
-  } catch {
-    return [];
-  }
-};
 
 // Ejercicios que NO tienen GIF (rutina_id + orden). Ej: "25" = rutina 2, orden 5.
 const SIN_VIDEO = new Set(["25"]);
@@ -77,22 +67,62 @@ export const PlanSection = ({ user }) => {
   const [videoEj, setVideoEj] = useState(null); // ejercicio cuyo video se está viendo
   const [videoError, setVideoError] = useState(false);
 
-  const cargar = useCallback(async () => {
+  const cargar = useCallback(async (forzarRed = false) => {
     setLoading(true);
-    const [cfg, pl, cm, rs, ru, re] = await Promise.all([
-      fetchSheet("Perfil_Config"),
-      fetchSheet("Planes"),
-      fetchSheet("Plan_Comidas"),
-      fetchSheet("Rutina_Semana"),
-      fetchSheet("Rutinas"),
-      fetchSheet("Rutina_Ejercicios"),
+
+    let configData, planesData, comidasData, rutinaSemanaData, rutinasData, rutinaEjData;
+
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Perfil_Config", (data, origen) => {
+          configData = data;
+          console.log("Plan - Perfil_Config desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Planes", (data, origen) => {
+          planesData = data;
+          console.log("Plan - Planes desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Plan_Comidas", (data, origen) => {
+          comidasData = data;
+          console.log("Plan - Plan_Comidas desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Rutina_Semana", (data, origen) => {
+          rutinaSemanaData = data;
+          console.log("Plan - Rutina_Semana desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Rutinas", (data, origen) => {
+          rutinasData = data;
+          console.log("Plan - Rutinas desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Rutina_Ejercicios", (data, origen) => {
+          rutinaEjData = data;
+          console.log("Plan - Rutina_Ejercicios desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
     ]);
-    setConfig(cfg[0] || null);
-    setPlanes(pl);
-    setComidas(cm);
-    setRutinaSemana(rs);
-    setRutinas(ru);
-    setRutinaEj(re);
+
+    setConfig(configData?.[0] || null);
+    setPlanes(planesData || []);
+    setComidas(comidasData || []);
+    setRutinaSemana(rutinaSemanaData || []);
+    setRutinas(rutinasData || []);
+    setRutinaEj(rutinaEjData || []);
     setLoading(false);
   }, []);
 

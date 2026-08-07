@@ -717,6 +717,32 @@
   width: 100%;
 }
 
+/* Botón de sincronizar */
+.p60-sync {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+
+.p60-sync:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: #fff;
+  transform: rotate(45deg);
+}
+
+.p60-sync:active {
+  transform: rotate(90deg);
+}
+
 /* ---------------- Accesibilidad ---------------- */
 @media (prefers-reduced-motion: reduce) {
   .p60-card,

@@ -4,6 +4,7 @@ import "../Styles/dashboard.css";
 import { RegistrarSection } from "./RegistrarSection";
 import { ProgresoSection } from "./ProgresoSection";
 import { PlanSection } from "./PlanSection";
+import { fetchSheetCached, fetchResumenCached, invalidarTodo } from "./cacheProtocolo";
 
 const Placeholder = ({ titulo, nota }) => (
   <div className="p60-placeholder">
@@ -35,34 +36,8 @@ const localDay = (v) => {
 };
 const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-const fetchSheet = async (sheet) => {
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-  const txt = await res.text();
-  try {
-    const data = JSON.parse(txt);
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-};
-
-// Caché en memoria de catálogos (casi nunca cambian). Persiste mientras la app esté abierta.
-const _cacheCatalogos = {};
-const fetchCatalogo = async (sheet) => {
-  if (_cacheCatalogos[sheet]) return _cacheCatalogos[sheet];
-  const data = await fetchSheet(sheet);
-  _cacheCatalogos[sheet] = data;
-  return data;
-};
-const fetchResumen = async (usuarioId, fecha) => {
-  const res = await fetch(`${API_URL}?resumen=dia&usuario_id=${encodeURIComponent(usuarioId)}&fecha=${encodeURIComponent(fecha)}`);
-  const txt = await res.text();
-  try {
-    return JSON.parse(txt);
-  } catch {
-    return { status: "error" };
-  }
-};
+// Eliminar las funciones fetchSheet, fetchCatalogo y fetchResumen locales
+// Ahora usamos las de cacheProtocolo.js
 
 /* ============================================================
    COMPONENTE
@@ -90,42 +65,116 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
 
   /* ---------- Carga ---------- */
   // Carga COMPLETA: catálogos (cacheados) + registros + resumen, TODO en paralelo.
-  const cargar = useCallback(async (uid) => {
+  const cargar = useCallback(async (uid, forzarRed = false) => {
     setLoading(true);
     const hoyStr = localDay(new Date());
-    // Todo en paralelo: los catálogos salen del caché si ya se bajaron una vez
-    const [cfg, pz, cm, pl, rs, re, aj, su, r] = await Promise.all([
-      fetchCatalogo("Perfil_Config"),
-      fetchSheet("Registro_Peso"),          // cambia -> siempre fresco
-      fetchCatalogo("Plan_Comidas"),        // catálogo pesado -> cacheado
-      fetchCatalogo("Planes"),
-      fetchCatalogo("Rutina_Semana"),
-      fetchCatalogo("Rutina_Ejercicios"),
-      fetchCatalogo("Ref_Ajustes"),
-      fetchCatalogo("Ref_Sustituciones"),
-      fetchResumen(uid, hoyStr),            // en paralelo, ya no espera a las hojas
+
+    // Usamos fetchSheetCached con callbacks para carga instantánea desde caché local
+    let configData, pesosData, comidasData, planesData, rutinaSemanaData,
+      rutinaEjData, ajustesData, sustsData, resumenData;
+
+    // Cargar catálogos en paralelo
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Perfil_Config", (data, origen) => {
+          configData = data;
+          console.log("Perfil_Config desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Peso", (data, origen) => {
+          pesosData = data;
+          console.log("Registro_Peso desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Plan_Comidas", (data, origen) => {
+          comidasData = data;
+          console.log("Plan_Comidas desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Planes", (data, origen) => {
+          planesData = data;
+          console.log("Planes desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Rutina_Semana", (data, origen) => {
+          rutinaSemanaData = data;
+          console.log("Rutina_Semana desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Rutina_Ejercicios", (data, origen) => {
+          rutinaEjData = data;
+          console.log("Rutina_Ejercicios desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Ref_Ajustes", (data, origen) => {
+          ajustesData = data;
+          console.log("Ref_Ajustes desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Ref_Sustituciones", (data, origen) => {
+          sustsData = data;
+          console.log("Ref_Sustituciones desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchResumenCached(uid, hoyStr, (data, origen) => {
+          resumenData = data;
+          console.log("Resumen desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
     ]);
-    setConfig(cfg[0] || null);
-    setPesos(pz);
-    setComidas(cm);
-    setPlanes(pl);
-    setRutinaSemana(rs);
-    setRutinaEj(re);
-    setAjustes(aj);
-    setSusts(su);
-    setResumen(r && r.status === "success" ? r : null);
+
+    setConfig(configData?.[0] || null);
+    setPesos(pesosData || []);
+    setComidas(comidasData || []);
+    setPlanes(planesData || []);
+    setRutinaSemana(rutinaSemanaData || []);
+    setRutinaEj(rutinaEjData || []);
+    setAjustes(ajustesData || []);
+    setSusts(sustsData || []);
+    setResumen(resumenData && resumenData.status === "success" ? resumenData : null);
     setLoading(false);
   }, []);
 
   // Recarga LIGERA: solo lo que cambia al registrar (peso + resumen). Sin bloquear con "loading".
-  const recargarLigero = useCallback(async (uid) => {
+  const recargarLigero = useCallback(async (uid, forzarRed = false) => {
     const hoyStr = localDay(new Date());
-    const [pz, r] = await Promise.all([
-      fetchSheet("Registro_Peso"),
-      fetchResumen(uid, hoyStr),
+
+    // Recarga solo lo que cambia
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Peso", (data, origen) => {
+          setPesos(data);
+          console.log("Registro_Peso (ligero) desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchResumenCached(uid, hoyStr, (data, origen) => {
+          if (data && data.status === "success") {
+            setResumen(data);
+          }
+          console.log("Resumen (ligero) desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
     ]);
-    setPesos(pz);
-    setResumen(r && r.status === "success" ? r : null);
   }, []);
 
   useEffect(() => {
@@ -457,6 +506,10 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
           <span className="p60-topbar-brand">PROTOCOLO <b>60</b></span>
           <span className="p60-topbar-hi">Hola, {primerNombre}</span>
         </div>
+        <button className="p60-sync" onClick={() => {
+          invalidarTodo();
+          cargar(uidActual, true);
+        }} title="Sincronizar datos">⟳</button>
         <button className="p60-logout" onClick={logout} title="Cerrar sesión">⏻</button>
       </header>
 

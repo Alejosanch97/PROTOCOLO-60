@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "../Styles/registrar.css";
+import { fetchSheetCached, postActionCached } from "./cacheProtocolo";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -22,47 +23,6 @@ const localDay = (v) => {
 };
 const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-const fetchSheet = async (sheet) => {
-  try {
-    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-    const txt = await res.text();
-    const d = JSON.parse(txt);
-    return Array.isArray(d) ? d : [];
-  } catch {
-    return [];
-  }
-};
-
-/**
- * POST con reintento. Apps Script a veces responde no-JSON o falla si dos
- * escrituras coinciden; reintenta hasta 2 veces con pausa corta.
- */
-const postSheet = async (sheet, data, action = "create", intentos = 2) => {
-  for (let i = 0; i <= intentos; i++) {
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        redirect: "follow",
-        // text/plain evita el preflight CORS que rompe el redirect 302 de Apps Script
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action, sheet, data }),
-      });
-      const txt = await res.text();
-      try {
-        const j = JSON.parse(txt);
-        if (j.status === "error") throw new Error(j.message);
-        return j;
-      } catch (e) {
-        if (e instanceof SyntaxError) return { status: "success" }; // no-JSON = OK en Apps Script
-        throw e;
-      }
-    } catch (e) {
-      if (i === intentos) throw e;
-      await new Promise((r) => setTimeout(r, 600));
-    }
-  }
-};
-
 /* ============================================================
    COMPONENTE
    ============================================================ */
@@ -81,7 +41,7 @@ export const RegistrarSection = ({ user }) => {
   // Set de ids marcados HOY. Se pinta al instante al hacer clic y se rellena en la carga.
   const [marcados, setMarcados] = useState(new Set());
 
-  const [hechoHoy, setHechoHoy] = useState({ gasto: false, peso: false, agua: false });
+  const [hechoHoy, setHechoHoy] = useState({ gasto: false, peso: false, agua: false, actividad: false });
 
   /* Formularios */
   const [gasto, setGasto] = useState({ total: "", activo: "", reposo: "", pasos: "", fc: "" });
@@ -102,23 +62,62 @@ export const RegistrarSection = ({ user }) => {
   const [extra, setExtra] = useState({ momento: "Snack", descripcion: "", kcal: "" });
 
   /* ---------- Carga ---------- */
-  const cargar = useCallback(async () => {
-    const [cfg, cm, cp, gastoRows, pesoRows, aguaRows] = await Promise.all([
-      fetchSheet("Perfil_Config"),
-      fetchSheet("Plan_Comidas"),
-      fetchSheet("Registro_Plan_Cumplido"),
-      fetchSheet("Registro_Gasto_Diario"),
-      fetchSheet("Registro_Peso"),
-      fetchSheet("Registro_Agua"),
+    const cargar = useCallback(async (forzarRed = false) => {
+    let configData, comidasData, cumplidosData, gastoRows, pesoRows, aguaRows;
+    
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Perfil_Config", (data, origen) => {
+          configData = data;
+          console.log("Registrar - Perfil_Config desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Plan_Comidas", (data, origen) => {
+          comidasData = data;
+          console.log("Registrar - Plan_Comidas desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Plan_Cumplido", (data, origen) => {
+          cumplidosData = data;
+          console.log("Registrar - Registro_Plan_Cumplido desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Gasto_Diario", (data, origen) => {
+          gastoRows = data;
+          console.log("Registrar - Registro_Gasto_Diario desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Peso", (data, origen) => {
+          pesoRows = data;
+          console.log("Registrar - Registro_Peso desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Agua", (data, origen) => {
+          aguaRows = data;
+          console.log("Registrar - Registro_Agua desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
     ]);
-    setConfig(cfg[0] || null);
-    setComidas(cm);
-    setCumplidos(cp);
+    
+    setConfig(configData?.[0] || null);
+    setComidas(comidasData || []);
+    setCumplidos(cumplidosData || []);
 
     // Reconstruye el set de marcados de hoy desde el backend
     const hoyStr0 = localDay(new Date());
     const setInicial = new Set();
-    cp.forEach((r) => {
+    (cumplidosData || []).forEach((r) => {
       if (
         clean(r.usuario_id) === uid &&
         localDay(r.fecha) === hoyStr0 &&
@@ -133,9 +132,10 @@ export const RegistrarSection = ({ user }) => {
     const yaHay = (rows) =>
       rows.some((r) => clean(r.usuario_id) === uid && localDay(r.fecha) === hoyStr);
     setHechoHoy({
-      gasto: yaHay(gastoRows),
-      peso: yaHay(pesoRows),
-      agua: yaHay(aguaRows),
+      gasto: yaHay(gastoRows || []),
+      peso: yaHay(pesoRows || []),
+      agua: yaHay(aguaRows || []),
+      actividad: false,
     });
   }, [uid]);
 
@@ -177,7 +177,7 @@ export const RegistrarSection = ({ user }) => {
     setHechoHoy((h) => ({ ...h, gasto: true }));
     mostrarToast("Gasto guardado");
     setSyncing(true);
-    postSheet("Registro_Gasto_Diario", {
+    postActionCached("Registro_Gasto_Diario", {
       usuario_id: uid,
       fecha: hoy,
       gasto_total_kcal: num(snapshot.total),
@@ -203,7 +203,7 @@ export const RegistrarSection = ({ user }) => {
     setHechoHoy((h) => ({ ...h, peso: true }));
     mostrarToast("Peso registrado");
     setSyncing(true);
-    postSheet("Registro_Peso", {
+    postActionCached("Registro_Peso", {
       usuario_id: uid,
       fecha: hoy,
       hora: `${String(ahora.getHours()).padStart(2, "0")}:${String(ahora.getMinutes()).padStart(2, "0")}`,
@@ -233,7 +233,7 @@ export const RegistrarSection = ({ user }) => {
     setHechoHoy((h) => ({ ...h, agua: true }));
     mostrarToast("Agua registrada");
     setSyncing(true);
-    postSheet("Registro_Agua", {
+    postActionCached("Registro_Agua", {
       usuario_id: uid,
       fecha: hoy,
       ml_total: num(snapshot),
@@ -255,7 +255,7 @@ export const RegistrarSection = ({ user }) => {
     setExtra({ momento: "Snack", descripcion: "", kcal: "" });
     mostrarToast("Snack agregado");
     setSyncing(true);
-    postSheet("Registro_Extra", {
+    postActionCached("Registro_Extra", {
       usuario_id: uid,
       fecha: hoy,
       momento: snapshot.momento,
@@ -270,19 +270,20 @@ export const RegistrarSection = ({ user }) => {
       .finally(() => setSyncing(false));
   };
 
-  const guardarEtapas = () => {
+    const guardarEtapas = () => {
     const aGuardar = ETAPAS.filter((e) => num(etapas[e.id]) > 0);
     if (aGuardar.length === 0) return mostrarToast("Anota al menos una etapa");
     const snapshot = { ...etapas };
     const total = totalEtapas;
     setEtapas({});
+    setHechoHoy((h) => ({ ...h, actividad: true }));
     mostrarToast(`${aGuardar.length} etapas guardadas (${total} kcal)`);
     setSyncing(true);
     (async () => {
       const fallidas = [];
       for (const e of aGuardar) {
         try {
-          await postSheet("Registro_Actividad", {
+          await postActionCached("Registro_Actividad", {
             usuario_id: uid,
             fecha: hoy,
             actividad_id: e.id,
@@ -299,43 +300,78 @@ export const RegistrarSection = ({ user }) => {
         const restaura = {};
         fallidas.forEach((e) => (restaura[e.id] = snapshot[e.id]));
         setEtapas(restaura);
+        setHechoHoy((h) => ({ ...h, actividad: false }));
         mostrarToast(`${fallidas.length} etapas no se guardaron, reintenta`);
       }
     })().finally(() => setSyncing(false));
   };
 
   // Marcar comida del plan (chulito) — instantáneo, sincroniza detrás
+    // Marcar comida del plan (chulito) — instantáneo, sincroniza detrás
+    // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
+    // Marcar/Desmarcar comida del plan (chulito) — instantáneo, sincroniza detrás
   const toggleComida = (comida) => {
     const id = clean(comida.id);
-    if (marcados.has(id)) return; // ya marcado, no se puede desactivar
+    const estaMarcada = marcados.has(id);
 
-    // 1) PINTA YA: agrega al Set al instante (React re-renderiza el chulito verde)
+    // 1) PINTA YA: alterna el estado en el Set
     setMarcados((prev) => {
       const next = new Set(prev);
-      next.add(id);
+      if (estaMarcada) {
+        next.delete(id);  // Desmarcar
+      } else {
+        next.add(id);     // Marcar
+      }
       return next;
     });
 
-    // 2) SINCRONIZA por detrás
+    // 2) SINCRONIZA por detrás usando findOrUpdate
     setSyncing(true);
-    postSheet("Registro_Plan_Cumplido", {
-      usuario_id: uid,
-      fecha: hoy,
-      semana: semanaActual,
-      nivel: "comida",
-      momento: clean(comida.momento),
-      plan_comida_id: id,
-      cumplido: "SI",
-      notas: "",
+    const nuevoEstado = estaMarcada ? "NO" : "SI";
+    
+    // Usamos findOrUpdate: busca por usuario_id, fecha y plan_comida_id
+    // Si existe, actualiza; si no, crea
+    const payload = {
+      action: "findOrUpdate",
+      sheet: "Registro_Plan_Cumplido",
+      filters: {
+        usuario_id: uid,
+        fecha: hoy,
+        plan_comida_id: id
+      },
+      data: {
+        usuario_id: uid,
+        fecha: hoy,
+        semana: semanaActual,
+        nivel: "comida",
+        momento: clean(comida.momento),
+        plan_comida_id: id,
+        cumplido: nuevoEstado,
+        notas: "",
+      }
+    };
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
     })
+      .then(res => res.text())
+      .then(txt => {
+        try { return JSON.parse(txt); } catch { return { status: "success" }; }
+      })
       .catch((e) => {
-        // Si falla, lo quita del Set y avisa
+        // Si falla, revierte el cambio
         setMarcados((prev) => {
           const next = new Set(prev);
-          next.delete(id);
+          if (estaMarcada) {
+            next.add(id);  // revertir desmarcado
+          } else {
+            next.delete(id); // revertir marcado
+          }
           return next;
         });
-        mostrarToast(`No se marcó: ${e.message}`);
+        mostrarToast(`Error: ${e.message}`);
       })
       .finally(() => setSyncing(false));
   };
@@ -404,31 +440,38 @@ export const RegistrarSection = ({ user }) => {
       )}
 
       {/* ---------- GYM POR ETAPAS ---------- */}
+      {/* ---------- GYM POR ETAPAS ---------- */}
       {sub === "gym" && (
         <div className="reg-card">
-          <p className="reg-card-desc">
-            Anota las kcal de cada etapa de tu día. Se suman como tu gasto por actividad.
-            El déficit del día lo sigue calculando el <b>total del Garmin</b>.
-          </p>
-          <div className="reg-etapas">
-            {ETAPAS.map((e) => (
-              <div className="reg-etapa" key={e.id}>
-                <span className="reg-etapa-name">{e.nombre}</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="kcal"
-                  value={etapas[e.id] || ""}
-                  onChange={(ev) => setEtapas({ ...etapas, [e.id]: ev.target.value })}
-                />
+          {hechoHoy.gasto ? (
+            <AvisoHecho texto="Ya registraste el gasto del Garmin de hoy. Las etapas son opcionales y se suman al gasto total." />
+          ) : (
+            <>
+              <p className="reg-card-desc">
+                Anota las kcal de cada etapa de tu día. Se suman como tu gasto por actividad.
+                El déficit del día lo sigue calculando el <b>total del Garmin</b>.
+              </p>
+              <div className="reg-etapas">
+                {ETAPAS.map((e) => (
+                  <div className="reg-etapa" key={e.id}>
+                    <span className="reg-etapa-name">{e.nombre}</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      placeholder="kcal"
+                      value={etapas[e.id] || ""}
+                      onChange={(ev) => setEtapas({ ...etapas, [e.id]: ev.target.value })}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="reg-etapa-total">
-            <span>TOTAL ETAPAS</span>
-            <b>{totalEtapas} <i>kcal</i></b>
-          </div>
-          <button className="reg-save" onClick={guardarEtapas}>Guardar etapas del día</button>
+              <div className="reg-etapa-total">
+                <span>TOTAL ETAPAS</span>
+                <b>{totalEtapas} <i>kcal</i></b>
+              </div>
+              <button className="reg-save" onClick={guardarEtapas}>Guardar etapas del día</button>
+            </>
+          )}
         </div>
       )}
 
@@ -491,7 +534,7 @@ export const RegistrarSection = ({ user }) => {
               {comidasHoy.map((c) => {
                 const marcada = marcadosHoy.has(clean(c.id));
                 return (
-                  <button key={c.id} className={`reg-meal ${marcada ? "done" : ""}`} onClick={() => toggleComida(c)} disabled={marcada}>
+                  <button key={c.id} className={`reg-meal ${marcada ? "done" : ""}`} onClick={() => toggleComida(c)}>
                     <span className={`reg-check ${marcada ? "on" : ""}`}>{marcada ? "✓" : ""}</span>
                     <span className="reg-meal-body">
                       <span className="reg-meal-when">{clean(c.momento)}</span>

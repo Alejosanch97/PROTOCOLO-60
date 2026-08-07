@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { fetchSheetCached, postActionCached } from "./cacheProtocolo";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -24,17 +25,6 @@ const toDate = (v) => {
   return isNaN(d.getTime()) ? null : d;
 };
 const fmtDia = (d) => (d ? `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}` : "");
-
-const fetchSheet = async (sheet) => {
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-  const txt = await res.text();
-  try {
-    const d = JSON.parse(txt);
-    return Array.isArray(d) ? d : [];
-  } catch {
-    return [];
-  }
-};
 
 /* ---------- Tooltip personalizado (estética P60) ---------- */
 const P60Tooltip = ({ active, payload, label, unidad, color }) => {
@@ -152,27 +142,30 @@ export const ProgresoSection = ({ user }) => {
   const [semSaving, setSemSaving] = useState(false);
   const [semToast, setSemToast] = useState("");
 
-  const postSheet = async (sheet, data) => {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      redirect: "follow",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "create", sheet, data }),
-    });
-    const txt = await res.text();
-    try {
-      const j = JSON.parse(txt);
-      if (j.status === "error") throw new Error(j.message);
-    } catch (e) {
-      if (!(e instanceof SyntaxError)) throw e;
-    }
-  };
-
-  const cargar = useCallback(async () => {
+  const cargar = useCallback(async (forzarRed = false) => {
     setLoading(true);
-    const [cfg, pz] = await Promise.all([fetchSheet("Perfil_Config"), fetchSheet("Registro_Peso")]);
-    setConfig(cfg[0] || null);
-    setPesos(pz);
+
+    let configData, pesosData;
+
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Perfil_Config", (data, origen) => {
+          configData = data;
+          console.log("Progreso - Perfil_Config desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Peso", (data, origen) => {
+          pesosData = data;
+          console.log("Progreso - Registro_Peso desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+    ]);
+
+    setConfig(configData?.[0] || null);
+    setPesos(pesosData || []);
     setLoading(false);
   }, []);
 
@@ -224,7 +217,7 @@ export const ProgresoSection = ({ user }) => {
       const inicio = toDate(config?.fecha_inicio);
       const semanaN = inicio ? Math.min(12, Math.max(1, Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24 * 7)) + 1)) : "";
       const hoyStr = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
-      await postSheet("Registro_Semanal", {
+      await postActionCached("Registro_Semanal", {
         usuario_id: uid,
         semana: semanaN,
         fecha_domingo: hoyStr,
