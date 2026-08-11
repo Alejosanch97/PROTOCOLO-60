@@ -229,8 +229,8 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
   // Semana actual del protocolo según fecha de inicio
   // Semana actual del protocolo según fecha de inicio del usuario
   const semanaActual = useMemo(() => {
-    const userConfig = Array.isArray(config) && config.length > 0 ? config[0] : null;
-    const inicio = toDate(userConfig?.fecha_inicio);
+    const uc = Array.isArray(config) ? config[0] : config;
+    const inicio = toDate(uc?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
