@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "../Styles/plan.css";
 import { fetchSheetCached } from "./cacheProtocolo";
+import { useProtocolo } from "./ProtocoloStore";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -52,85 +53,15 @@ const videoDeEjercicio = (e) => {
 
 export const PlanSection = ({ user }) => {
   const [vista, setVista] = useState("menu"); // menu | rutina
-  const [loading, setLoading] = useState(true);
 
-  const [config, setConfig] = useState(null);
-  const [planes, setPlanes] = useState([]);
-  const [comidas, setComidas] = useState([]);
-  const [rutinaSemana, setRutinaSemana] = useState([]);
-  const [rutinas, setRutinas] = useState([]);
-  const [rutinaEj, setRutinaEj] = useState([]);
+  const { config, planes, comidas, rutinaSemana, rutinas, rutinaEj, listo } = useProtocolo();
+  const loading = !listo;
 
   const hoyDia = DIAS_JS[new Date().getDay()];
   const [semana, setSemana] = useState(1);
   const [dia, setDia] = useState(hoyDia === "Domingo" ? "Domingo" : hoyDia);
   const [videoEj, setVideoEj] = useState(null); // ejercicio cuyo video se está viendo
   const [videoError, setVideoError] = useState(false);
-
-  const cargar = useCallback(async (forzarRed = false) => {
-    setLoading(true);
-
-    let configData, planesData, comidasData, rutinaSemanaData, rutinasData, rutinaEjData;
-
-    await Promise.all([
-      new Promise((resolve) => {
-        fetchSheetCached("Perfil_Config", (data, origen) => {
-          const uid = clean(user?.id) || clean(user?.usuario_id) || "1";
-          configData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Plan - Perfil_Config desde:", origen, "usuario:", uid);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        const uid = clean(user?.id) || clean(user?.usuario_id) || "1";
-        fetchSheetCached("Planes", (data, origen) => {
-          planesData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Plan - Planes desde:", origen, "usuario:", uid, "filas:", planesData.length);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Plan_Comidas", (data, origen) => {
-          comidasData = data;
-          console.log("Plan - Plan_Comidas desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Rutina_Semana", (data, origen) => {
-          rutinaSemanaData = data;
-          console.log("Plan - Rutina_Semana desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Rutinas", (data, origen) => {
-          rutinasData = data;
-          console.log("Plan - Rutinas desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Rutina_Ejercicios", (data, origen) => {
-          rutinaEjData = data;
-          console.log("Plan - Rutina_Ejercicios desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-    ]);
-
-    setConfig(configData?.[0] || null);
-    setPlanes(planesData || []);
-    setComidas(comidasData || []);
-    setRutinaSemana(rutinaSemanaData || []);
-    setRutinas(rutinasData || []);
-    setRutinaEj(rutinaEjData || []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
 
   // Semana actual del protocolo para resaltar
   // Semana actual del protocolo para resaltar
@@ -139,14 +70,14 @@ export const PlanSection = ({ user }) => {
     const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
-    return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
+    return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
   }, [config]);
 
   useEffect(() => {
     setSemana(semanaActual);
   }, [semanaActual]);
 
-    const planSemana = useMemo(
+  const planSemana = useMemo(
     () => planes.find((p) => clean(p.id) === String(semana)) || planes[semana - 1] || null,
     [planes, semana]
   );
@@ -195,7 +126,7 @@ export const PlanSection = ({ user }) => {
 
       {/* Selector de semana */}
       <div className="plan-weeks">
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
+        {Array.from({ length: 8 }, (_, i) => i + 1).map((w) => (
           <button
             key={w}
             className={`plan-week ${semana === w ? "on" : ""} ${w === semanaActual ? "now" : ""}`}

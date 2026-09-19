@@ -11,6 +11,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import { fetchSheetCached, postActionCached } from "./cacheProtocolo";
+import { useProtocolo } from "./ProtocoloStore";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -132,46 +133,33 @@ const AreaChartP60 = ({ data, meta, color, label, unidad, gradId, invertida = fa
 };
 
 export const ProgresoSection = ({ user }) => {
-  const [loading, setLoading] = useState(true);
-  const [config, setConfig] = useState(null);
   const [pesos, setPesos] = useState([]);
+  const [loadingPesos, setLoadingPesos] = useState(true);
+
+  const { config, listo, refrescarConfig } = useProtocolo();
+  const loading = loadingPesos || !listo;
 
   const uid = clean(user?.id) || clean(user?.usuario_id) || "1";
 
   const [semForm, setSemForm] = useState({ cintura: "", energia: "", saciedad: "", rendimiento: "" });
   const [semSaving, setSemSaving] = useState(false);
   const [semToast, setSemToast] = useState("");
+  const [reiniciando, setReiniciando] = useState(false);
 
-  const cargar = useCallback(async (forzarRed = false) => {
-    setLoading(true);
-
-    let configData, pesosData;
-
-    await Promise.all([
-      new Promise((resolve) => {
-        fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Progreso - Perfil_Config desde:", origen, "usuario:", uid);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Registro_Peso", (data, origen) => {
-          pesosData = data;
-          console.log("Progreso - Registro_Peso desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-    ]);
-
-    setConfig(configData?.[0] || null);
-    setPesos(pesosData || []);
-    setLoading(false);
+  const cargarPesos = useCallback(async (forzarRed = false) => {
+    setLoadingPesos(true);
+    await new Promise((resolve) => {
+      fetchSheetCached("Registro_Peso", (data) => {
+        setPesos(data || []);
+        resolve();
+      }, forzarRed);
+    });
+    setLoadingPesos(false);
   }, []);
 
   useEffect(() => {
-    cargar();
-  }, [cargar]);
+    cargarPesos();
+  }, [cargarPesos]);
 
   const serie = useMemo(() => {
     return pesos
@@ -212,12 +200,53 @@ export const ProgresoSection = ({ user }) => {
     return { txt: "Subiendo de peso — revisa ingesta", cls: "bad" };
   }, [ritmo]);
 
+  const reiniciarEtapa = async () => {
+    const confirmar = window.confirm(
+      "Esto reinicia el contador a Semana 1 (nueva Etapa). Tu peso, gráficas e historial NO se borran. ¿Continuar?"
+    );
+    if (!confirmar) return;
+
+    setReiniciando(true);
+    const userConfig = Array.isArray(config) ? config[0] : config;
+    const hoyStr = (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    })();
+    const etapaNueva = num(userConfig?.etapa_actual || 1) + 1;
+
+    const payload = {
+      action: "findOrUpdate",
+      sheet: "Perfil_Config",
+      filters: { usuario_id: uid },
+      data: {
+        ...userConfig,
+        fecha_inicio: hoyStr,
+        etapa_actual: etapaNueva,
+      },
+    };
+
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      setSemToast(`¡Etapa ${etapaNueva} iniciada! Semana 1 de 8.`);
+      setTimeout(() => setSemToast(""), 4000);
+      refrescarConfig(); // recarga config con la nueva fecha_inicio
+    } catch (e) {
+      setSemToast(`Error al reiniciar: ${e.message}`);
+      setTimeout(() => setSemToast(""), 3000);
+    }
+    setReiniciando(false);
+  };
+
   const guardarSemanal = async () => {
     setSemSaving(true);
     try {
       const userConfig = Array.isArray(config) ? config[0] : config;
       const inicio = toDate(userConfig?.fecha_inicio);
-      const semanaN = inicio ? Math.min(12, Math.max(1, Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24 * 7)) + 1)) : "";
+      const semanaN = inicio ? Math.min(8, Math.max(1, Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24 * 7)) + 1)) : "";
       const hoyStr = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
       await postActionCached("Registro_Semanal", {
         usuario_id: uid,
@@ -300,6 +329,14 @@ export const ProgresoSection = ({ user }) => {
       {musculoPts.length > 0 && (
         <AreaChartP60 data={musculoPts} color="#38d6ff" label="Músculo esquelético" unidad="%" gradId="gradMusc" />
       )}
+
+      {/* Etapa actual + reinicio */}
+      <div className="prg-metas">
+        <h3>Etapa actual: {num(userConfig?.etapa_actual) || 1}</h3>
+        <button className="reg-save" onClick={reiniciarEtapa} disabled={reiniciando}>
+          {reiniciando ? "Reiniciando…" : "Terminé mis 8 semanas — Iniciar siguiente etapa"}
+        </button>
+      </div>
 
       {/* Metas del Excel */}
       <div className="prg-metas">

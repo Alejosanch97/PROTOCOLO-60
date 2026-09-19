@@ -5,6 +5,7 @@ import { RegistrarSection } from "./RegistrarSection";
 import { ProgresoSection } from "./ProgresoSection";
 import { PlanSection } from "./PlanSection";
 import { fetchSheetCached, fetchResumenCached, invalidarTodo } from "./cacheProtocolo";
+import { ProtocoloProvider, useProtocolo } from "./ProtocoloStore";
 
 const Placeholder = ({ titulo, nota }) => (
   <div className="p60-placeholder">
@@ -43,140 +44,9 @@ const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "
    COMPONENTE
    ============================================================ */
 export const Dashboard = ({ user: propUser, onLogout }) => {
-  const [tab, setTab] = useState("hoy");
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [uidActual, setUidActual] = useState(null);
-
-  const [config, setConfig] = useState(null);
-  const [pesos, setPesos] = useState([]);
-  const [comidas, setComidas] = useState([]);
-  const [planes, setPlanes] = useState([]);
-  const [rutinaSemana, setRutinaSemana] = useState([]);
-  const [rutinaEj, setRutinaEj] = useState([]);
-  const [ajustes, setAjustes] = useState([]);
-  const [susts, setSusts] = useState([]);
-  const [resumen, setResumen] = useState(null);
-  const [tipIdx, setTipIdx] = useState(0);
-
   const navigate = useNavigate();
-  const hoy = useMemo(() => localDay(new Date()), []);
-  const diaSemana = DIAS[new Date().getDay()];
-
-  /* ---------- Carga ---------- */
-  // Carga COMPLETA: catálogos (cacheados) + registros + resumen, TODO en paralelo.
-  const cargar = useCallback(async (uid, forzarRed = false) => {
-    setLoading(true);
-    const hoyStr = localDay(new Date());
-
-    // Usamos fetchSheetCached con callbacks para carga instantánea desde caché local
-    let configData, pesosData, comidasData, planesData, rutinaSemanaData,
-      rutinaEjData, ajustesData, sustsData, resumenData;
-
-    // Cargar catálogos en paralelo
-    await Promise.all([
-      new Promise((resolve) => {
-        fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Perfil_Config desde:", origen, "usuario:", uid, "filas:", configData.length);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Registro_Peso", (data, origen) => {
-          pesosData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Registro_Peso desde:", origen, "usuario:", uid, "filas:", pesosData.length);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Plan_Comidas", (data, origen) => {
-          comidasData = data;
-          console.log("Plan_Comidas desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Planes", (data, origen) => {
-          planesData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Planes desde:", origen, "usuario:", uid, "filas:", planesData.length);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Rutina_Semana", (data, origen) => {
-          rutinaSemanaData = data;
-          console.log("Rutina_Semana desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Rutina_Ejercicios", (data, origen) => {
-          rutinaEjData = data;
-          console.log("Rutina_Ejercicios desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Ref_Ajustes", (data, origen) => {
-          ajustesData = data;
-          console.log("Ref_Ajustes desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Ref_Sustituciones", (data, origen) => {
-          sustsData = data;
-          console.log("Ref_Sustituciones desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchResumenCached(uid, hoyStr, (data, origen) => {
-          resumenData = data;
-          console.log("Resumen desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-    ]);
-
-    setConfig(configData?.[0] || null);
-    setPesos(pesosData || []);
-    setComidas(comidasData || []);
-    setPlanes(planesData || []);
-    setRutinaSemana(rutinaSemanaData || []);
-    setRutinaEj(rutinaEjData || []);
-    setAjustes(ajustesData || []);
-    setSusts(sustsData || []);
-    setResumen(resumenData && resumenData.status === "success" ? resumenData : null);
-    setLoading(false);
-  }, []);
-
-  // Recarga LIGERA: solo lo que cambia al registrar (peso + resumen). Sin bloquear con "loading".
-  const recargarLigero = useCallback(async (uid, forzarRed = false) => {
-    const hoyStr = localDay(new Date());
-
-    // Recarga solo lo que cambia
-    await Promise.all([
-      new Promise((resolve) => {
-        fetchSheetCached("Registro_Peso", (data, origen) => {
-          const filtrados = data.filter((row) => clean(row.usuario_id) === uid);
-          setPesos(filtrados);
-          console.log("Registro_Peso (ligero) desde:", origen, "usuario:", uid, "filas:", filtrados.length);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchResumenCached(uid, hoyStr, (data, origen) => {
-          if (data && data.status === "success") {
-            setResumen(data);
-          }
-          console.log("Resumen (ligero) desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
-    ]);
-  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("userSession");
@@ -186,15 +56,63 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     }
     const u = propUser || JSON.parse(saved);
     setUserData(u);
-    const uid = clean(u.id) || clean(u.usuario_id) || "1";
-    setUidActual(uid);
-    cargar(uid);
-  }, [propUser, navigate, cargar]);
+    setUidActual(clean(u.id) || clean(u.usuario_id) || "1");
+  }, [propUser, navigate]);
+
+  if (!userData || !uidActual) return <div className="p60-loader">Cargando…</div>;
+
+  return (
+    <ProtocoloProvider uid={uidActual}>
+      <DashboardInner userData={userData} uidActual={uidActual} onLogout={onLogout} />
+    </ProtocoloProvider>
+  );
+};
+
+const DashboardInner = ({ userData, uidActual, onLogout }) => {
+  const [tab, setTab] = useState("hoy");
+  const [pesos, setPesos] = useState([]);
+  const [resumen, setResumen] = useState(null);
+  const [tipIdx, setTipIdx] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const { config, comidas, planes, rutinaSemana, rutinaEj, ajustes, susts, listo, recargarTodo } = useProtocolo();
+
+  const navigate = useNavigate();
+  const hoy = useMemo(() => localDay(new Date()), []);
+  const diaSemana = DIAS[new Date().getDay()];
+
+  /* ---------- Carga de registros (peso + resumen del día) ---------- */
+  const cargarRegistros = useCallback(async (uid, forzarRed = false) => {
+    setLoading(true);
+    const hoyStr = localDay(new Date());
+
+    await Promise.all([
+      new Promise((resolve) => {
+        fetchSheetCached("Registro_Peso", (data, origen) => {
+          setPesos(data.filter((row) => clean(row.usuario_id) === uid));
+          console.log("Registro_Peso desde:", origen, "usuario:", uid);
+          resolve();
+        }, forzarRed);
+      }),
+      new Promise((resolve) => {
+        fetchResumenCached(uid, hoyStr, (data, origen) => {
+          if (data && data.status === "success") setResumen(data);
+          console.log("Resumen desde:", origen);
+          resolve();
+        }, forzarRed);
+      }),
+    ]);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    cargarRegistros(uidActual);
+  }, [uidActual, cargarRegistros]);
 
   // Al volver a Hoy: recarga SOLO lo que cambia (rápido, sin pantalla de carga)
   useEffect(() => {
     if (tab === "hoy" && uidActual) {
-      recargarLigero(uidActual);
+      cargarRegistros(uidActual);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
@@ -233,7 +151,7 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
     const inicio = toDate(uc?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
-    return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
+    return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
   }, [config]);
 
   const planSemana = useMemo(
@@ -332,7 +250,7 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
         <section className="p60-card p60-hero">
           <div className="p60-hero-top">
             <span className="p60-eyebrow">ESTADO ACTUAL</span>
-            <span className="p60-week">SEM {semanaActual}/12</span>
+            <span className="p60-week">SEM {semanaActual}/8</span>
           </div>
           <div className="p60-hero-weight">
             <b>{pesoActual.toFixed(2)}</b>
@@ -518,7 +436,8 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
         <div className="p60-topbar-right">
           <button className="p60-sync" onClick={() => {
             invalidarTodo();
-            cargar(uidActual, true);
+            recargarTodo();
+            cargarRegistros(uidActual, true);
           }} title="Sincronizar datos">⟳</button>
           <button className="p60-logout" onClick={logout} title="Cerrar sesión">⏻</button>
         </div>
@@ -526,7 +445,7 @@ export const Dashboard = ({ user: propUser, onLogout }) => {
 
       {/* CONTENIDO */}
       <main className="p60-main">
-        {loading && tab === "hoy" ? (
+        {(loading || !listo) && tab === "hoy" ? (
           <div className="p60-page">
             <div className="p60-loading-state">
               <div className="p60-loading-orb">

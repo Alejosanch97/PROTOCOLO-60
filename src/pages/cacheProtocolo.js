@@ -26,6 +26,7 @@ const HOJAS_CACHE = [
   "Plan_Comidas",
   "Planes",
   "Rutina_Semana",
+  "Rutinas",
   "Rutina_Ejercicios",
   "Ref_Ajustes",
   "Ref_Sustituciones",
@@ -52,7 +53,7 @@ const leerLocal = (key) => {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Si tiene más de 1 hora, considerarlo expirado (los catálogos cambian rara vez)
-    if (parsed.ts && Date.now() - parsed.ts > 3600000) {
+    if (parsed.ts && Date.now() - parsed.ts > 21600000) { // 6 horas
       localStorage.removeItem(key);
       return null;
     }
@@ -133,7 +134,7 @@ export const fetchResumenCached = async (usuarioId, fecha, onData, forzarRed = f
     );
     const txt = await res.text();
     const data = JSON.parse(txt);
-    
+
     // Guarda en caché por 30 segundos (resumen cambia con cada registro)
     guardarLocal(key, data);
     onData(data, "red");
@@ -171,7 +172,7 @@ export const postActionCached = async (sheet, data, action = "create") => {
     // Invalida caché de la hoja modificada
     const key = keyFor(sheet);
     localStorage.removeItem(key);
-    
+
     // También invalida resumen (cambian los datos)
     const keys = Object.keys(localStorage);
     keys.forEach((k) => {
@@ -196,5 +197,5 @@ export const invalidarTodo = () => {
         localStorage.removeItem(k);
       }
     });
-  } catch {}
+  } catch { }
 };

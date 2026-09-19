@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "../Styles/registrar.css";
 import { fetchSheetCached, postActionCached } from "./cacheProtocolo";
+import { useProtocolo } from "./ProtocoloStore";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzXAyHDhQodgu5mvasl-X6Nh5cHX5Rx700ZscoR6Aebp0Lg3iRTPH6VWGZPz86aDJpE/exec";
@@ -35,8 +36,7 @@ export const RegistrarSection = ({ user }) => {
   const [toast, setToast] = useState("");
   const [syncing, setSyncing] = useState(false);
 
-  const [config, setConfig] = useState(null);
-  const [comidas, setComidas] = useState([]);
+  const { config, comidas } = useProtocolo();
   const [cumplidos, setCumplidos] = useState([]);
   // Set de ids marcados HOY. Se pinta al instante al hacer clic y se rellena en la carga.
   const [marcados, setMarcados] = useState(new Set());
@@ -63,23 +63,9 @@ export const RegistrarSection = ({ user }) => {
 
   /* ---------- Carga ---------- */
   const cargar = useCallback(async (forzarRed = false) => {
-    let configData, comidasData, cumplidosData, gastoRows, pesoRows, aguaRows;
+    let cumplidosData, gastoRows, pesoRows, aguaRows;
 
     await Promise.all([
-      new Promise((resolve) => {
-        fetchSheetCached("Perfil_Config", (data, origen) => {
-          configData = data.filter((row) => clean(row.usuario_id) === uid);
-          console.log("Registrar - Perfil_Config desde:", origen, "usuario:", uid);
-          resolve();
-        }, forzarRed);
-      }),
-      new Promise((resolve) => {
-        fetchSheetCached("Plan_Comidas", (data, origen) => {
-          comidasData = data;
-          console.log("Registrar - Plan_Comidas desde:", origen);
-          resolve();
-        }, forzarRed);
-      }),
       new Promise((resolve) => {
         fetchSheetCached("Registro_Plan_Cumplido", (data, origen) => {
           cumplidosData = data;
@@ -110,8 +96,6 @@ export const RegistrarSection = ({ user }) => {
       }),
     ]);
 
-    setConfig(configData?.[0] || null);
-    setComidas(comidasData || []);
     setCumplidos(cumplidosData || []);
 
     // Reconstruye el set de marcados de hoy desde el backend
@@ -160,7 +144,7 @@ export const RegistrarSection = ({ user }) => {
     const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
-    return Math.min(12, Math.max(1, Math.floor(diff / 7) + 1));
+    return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
   }, [config]);
 
   const comidasHoy = useMemo(
