@@ -63,31 +63,39 @@ export const PlanSection = ({ user }) => {
   const [videoEj, setVideoEj] = useState(null); // ejercicio cuyo video se está viendo
   const [videoError, setVideoError] = useState(false);
 
-  // Semana actual del protocolo para resaltar
-  // Semana actual del protocolo para resaltar
-  const semanaActual = useMemo(() => {
-    const userConfig = Array.isArray(config) ? config[0] : config;
+  const userConfig = Array.isArray(config) ? config[0] : config;
+  const etapaActual = num(userConfig?.etapa_actual) || 1;
+  const totalSemanas = etapaActual * 8;
+
+  // Semana dentro del ciclo de 8, según fecha_inicio (se resetea cada etapa)
+  const semanaEnEtapa = useMemo(() => {
     const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
-  }, [config]);
+  }, [userConfig]);
+
+  // Semana GLOBAL actual (Etapa 2, semana 3 del ciclo = semana global 11)
+  const semanaActual = semanaEnEtapa + (etapaActual - 1) * 8;
 
   useEffect(() => {
     setSemana(semanaActual);
   }, [semanaActual]);
 
+  // La semana seleccionada (1 a totalSemanas) se traduce a la fila real del plan (1-8), que se repite cada etapa
+  const semanaDePlan = ((semana - 1) % 8) + 1;
+
   const planSemana = useMemo(
-    () => planes.find((p) => clean(p.id) === String(semana)) || planes[semana - 1] || null,
-    [planes, semana]
+    () => planes.find((p) => clean(p.id) === String(semanaDePlan)) || planes[semanaDePlan - 1] || null,
+    [planes, semanaDePlan]
   );
 
   const comidasDia = useMemo(
     () =>
       comidas
-        .filter((c) => clean(c.semana) === String(semana) && clean(c.dia_semana) === dia)
+        .filter((c) => clean(c.semana) === String(semanaDePlan) && clean(c.dia_semana) === dia)
         .sort((a, b) => num(a.id) - num(b.id)),
-    [comidas, semana, dia]
+    [comidas, semanaDePlan, dia]
   );
 
   const entrenoDia = useMemo(
@@ -126,7 +134,7 @@ export const PlanSection = ({ user }) => {
 
       {/* Selector de semana */}
       <div className="plan-weeks">
-        {Array.from({ length: 8 }, (_, i) => i + 1).map((w) => (
+        {Array.from({ length: totalSemanas }, (_, i) => i + 1).map((w) => (
           <button
             key={w}
             className={`plan-week ${semana === w ? "on" : ""} ${w === semanaActual ? "now" : ""}`}

@@ -174,6 +174,14 @@ export const ProgresoSection = ({ user }) => {
   const musculoPts = serie.filter((s) => clean(s.row.musculo_esqueletico_pct)).map((s) => ({ v: num(s.row.musculo_esqueletico_pct), fecha: fmtDia(s.d) }));
 
   const userConfig = Array.isArray(config) ? config[0] : config;
+  const etapaActual = num(userConfig?.etapa_actual) || 1;
+  const semanaEnEtapaActual = useMemo(() => {
+    const inicio = toDate(userConfig?.fecha_inicio);
+    if (!inicio) return 1;
+    const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
+    return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
+  }, [userConfig]);
+  const semanaGlobalActual = semanaEnEtapaActual + (etapaActual - 1) * 8;
   const pesoInicial = num(userConfig?.peso_inicial_kg) || (pesoPts[0]?.v ?? 82.45);
   const metaPeso = num(userConfig?.meta_peso_kg) || 73;
   const metaGrasa = num(userConfig?.meta_grasa_pct) || 15;
@@ -244,9 +252,7 @@ export const ProgresoSection = ({ user }) => {
   const guardarSemanal = async () => {
     setSemSaving(true);
     try {
-      const userConfig = Array.isArray(config) ? config[0] : config;
-      const inicio = toDate(userConfig?.fecha_inicio);
-      const semanaN = inicio ? Math.min(8, Math.max(1, Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24 * 7)) + 1)) : "";
+      const semanaN = semanaGlobalActual;
       const hoyStr = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
       await postActionCached("Registro_Semanal", {
         usuario_id: uid,
@@ -332,7 +338,7 @@ export const ProgresoSection = ({ user }) => {
 
       {/* Etapa actual + reinicio */}
       <div className="prg-metas">
-        <h3>Etapa actual: {num(userConfig?.etapa_actual) || 1}</h3>
+        <h3>Etapa actual: {etapaActual} · Semana {semanaGlobalActual}</h3>
         <button className="reg-save" onClick={reiniciarEtapa} disabled={reiniciando}>
           {reiniciando ? "Reiniciando…" : "Terminé mis 8 semanas — Iniciar siguiente etapa"}
         </button>

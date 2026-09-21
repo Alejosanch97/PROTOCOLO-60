@@ -144,8 +144,7 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
     ? 0
     : Math.min(100, Math.round((perdidoKg / totalCamino) * 100));
 
-  // Semana actual del protocolo según fecha de inicio
-  // Semana actual del protocolo según fecha de inicio del usuario
+  // Semana DENTRO del ciclo de 8 (para buscar en Planes/Comidas/Rutina, que solo tienen filas 1-8)
   const semanaActual = useMemo(() => {
     const uc = Array.isArray(config) ? config[0] : config;
     const inicio = toDate(uc?.fecha_inicio);
@@ -153,6 +152,11 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
   }, [config]);
+
+  // Etapa actual y semana GLOBAL para mostrar al usuario (Etapa 2 = semanas 9 a 16)
+  const etapaActual = num(userConfig?.etapa_actual) || 1;
+  const semanaGlobal = semanaActual + (etapaActual - 1) * 8;
+  const totalSemanas = etapaActual * 8;
 
   const planSemana = useMemo(
     () => planes.find((p) => clean(p.id) === String(semanaActual)) || planes[semanaActual - 1] || null,
@@ -169,7 +173,7 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
     let estado, mensaje;
     if (!ultimoPeso) {
       estado = "sin_datos";
-      mensaje = `Tu meta para el final de la semana ${semanaActual} es ${metaPesoSemana} kg. Registra tu peso para comparar.`;
+      mensaje = `Tu meta para el final de la semana ${semanaGlobal} es ${metaPesoSemana} kg. Registra tu peso para comparar.`;
     } else if (diff <= 0.3) {
       estado = "verde";
       mensaje = `Vas en línea o adelantado. Meta de la semana: ${metaPesoSemana} kg.`;
@@ -178,10 +182,10 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
       mensaje = `Estás ${diff.toFixed(1)} kg por encima de la meta de esta semana. Ritmo recuperable.`;
     } else {
       estado = "rojo";
-      mensaje = `Vas ${diff.toFixed(1)} kg por encima de lo previsto para la semana ${semanaActual}. Revisa adherencia.`;
+      mensaje = `Vas ${diff.toFixed(1)} kg por encima de lo previsto para la semana ${semanaGlobal}. Revisa adherencia.`;
     }
     return { metaPesoSemana, diff, estado, mensaje };
-  }, [planSemana, pesoActual, ultimoPeso, semanaActual]);
+  }, [planSemana, pesoActual, ultimoPeso, semanaGlobal]);
 
   const comidasHoy = useMemo(() => {
     return comidas
@@ -250,7 +254,7 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
         <section className="p60-card p60-hero">
           <div className="p60-hero-top">
             <span className="p60-eyebrow">ESTADO ACTUAL</span>
-            <span className="p60-week">SEM {semanaActual}/8</span>
+            <span className="p60-week">SEM {semanaGlobal}/{totalSemanas}</span>
           </div>
           <div className="p60-hero-weight">
             <b>{pesoActual.toFixed(2)}</b>
@@ -277,7 +281,7 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
         {metaSemanal && (
           <section className="p60-card p60-metasem" style={{ "--estado": estadoColor[metaSemanal.estado] || "var(--dim)" }}>
             <div className="p60-card-head">
-              <span className="p60-eyebrow">META DE LA SEMANA {semanaActual}</span>
+              <span className="p60-eyebrow">META DE LA SEMANA {semanaGlobal}</span>
               <span className="p60-dot-estado" />
             </div>
             <div className="p60-metasem-row">

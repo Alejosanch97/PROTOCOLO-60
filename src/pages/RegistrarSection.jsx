@@ -139,20 +139,26 @@ export const RegistrarSection = ({ user }) => {
     setTimeout(() => setToast(""), 3000);
   };
 
-  const semanaActual = useMemo(() => {
-    const userConfig = Array.isArray(config) ? config[0] : config;
+  const userConfig = Array.isArray(config) ? config[0] : config;
+  const etapaActual = num(userConfig?.etapa_actual) || 1;
+
+  // Semana dentro del ciclo de 8 (para buscar las comidas del plan, que solo tiene filas 1-8)
+  const semanaEnEtapa = useMemo(() => {
     const inicio = toDate(userConfig?.fecha_inicio);
     if (!inicio) return 1;
     const diff = Math.floor((new Date() - inicio) / (1000 * 60 * 60 * 24));
     return Math.min(8, Math.max(1, Math.floor(diff / 7) + 1));
-  }, [config]);
+  }, [userConfig]);
+
+  // Semana GLOBAL: la que se muestra y se guarda en Registro_Plan_Cumplido
+  const semanaActual = semanaEnEtapa + (etapaActual - 1) * 8;
 
   const comidasHoy = useMemo(
     () =>
       comidas
-        .filter((c) => clean(c.semana) === String(semanaActual) && clean(c.dia_semana) === diaSemana)
+        .filter((c) => clean(c.semana) === String(semanaEnEtapa) && clean(c.dia_semana) === diaSemana)
         .sort((a, b) => num(a.id) - num(b.id)),
-    [comidas, semanaActual, diaSemana]
+    [comidas, semanaEnEtapa, diaSemana]
   );
 
   // marcadosHoy ahora es directamente el Set en estado (instantáneo)
