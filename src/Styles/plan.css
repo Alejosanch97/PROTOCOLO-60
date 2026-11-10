@@ -1,153 +1,201 @@
 /* ============================================================
    PROTOCOLO 60 — PLAN
+   Paleta "Hierro & Brasa"
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 .plan-wrap {
-  --bg: #0a0c10;
-  --panel: #12161d;
-  --panel2: #171c25;
-  --line: #232a35;
-  --txt: #e8edf5;
-  --dim: #7d8899;
-  --acid: #c8ff2f;
-  --fire: #ff5c33;
-  --ice: #38d6ff;
-  --gold: #ffb627;
-  font-family: 'Inter', sans-serif;
+  --bg: #0d0c0b;
+  --panel: #171614;
+  --panel2: #1f1d1a;
+  --panel3: #282520;
+  --line: #2c2925;
+  --line-soft: rgba(243, 238, 230, 0.06);
+  --txt: #f3eee6;
+  --txt2: #cfc8bd;
+  --dim: #8a8277;
+  --mute: #5a544c;
+  --brand: #f26a3d;
+  --brand-deep: #c9461f;
+  --brand-ink: #1c0e08;
+  --brand-soft: rgba(242, 106, 61, 0.12);
+  --ok: #8fcb8b;
+  --warn: #e6ae4c;
+  --bad: #e5484d;
+  --info: #8bb0cf;
+  --acid: var(--brand);
+  --fire: var(--bad);
+  --ice: var(--info);
+  --gold: var(--warn);
+  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'Manrope', system-ui, sans-serif;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  font-family: var(--f-body);
   color: var(--txt);
+  width: 100%;
 }
 .plan-wrap * { box-sizing: border-box; }
 
 .plan-loader {
   padding: 60px;
   text-align: center;
-  color: #7d8899;
-  font-family: 'JetBrains Mono', monospace;
+  color: #8a8277;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
+/* ---------------- HEAD ---------------- */
 .plan-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 16px;
 }
 .plan-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 36px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 .plan-block {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--acid);
-  background: rgba(200, 255, 47, 0.1);
-  padding: 4px 9px;
-  border-radius: 6px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 5px 11px;
+  border-radius: 999px;
 }
 
-/* Toggle menú/rutina */
+/* ---------------- TOGGLE MENÚ / RUTINA ---------------- */
 .plan-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 4px;
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 5px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  padding: 4px;
   margin-bottom: 16px;
 }
 .plan-toggle button {
+  min-height: 44px;
   background: none;
   border: none;
-  border-radius: 9px;
+  border-radius: 12px;
   padding: 11px;
   color: var(--dim);
-  font-size: 13px;
+  font-family: var(--f-display);
   font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: 0.16s;
+  transition: background 0.25s var(--ease), color 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 .plan-toggle button.on {
-  background: var(--acid);
-  color: #0a0c10;
+  background: var(--txt);          /* tiza: contraste editorial */
+  color: var(--bg);
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.8);
 }
 
-/* Selector de semanas */
+/* ---------------- SEMANAS ---------------- */
 .plan-weeks {
   display: flex;
-  gap: 7px;
+  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 6px;
-  margin-bottom: 14px;
+  scroll-snap-type: x proximity;
+  padding: 2px 2px 8px;
+  margin: 0 -2px 12px;
   scrollbar-width: none;
 }
 .plan-weeks::-webkit-scrollbar { display: none; }
 .plan-week {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
+  scroll-snap-align: start;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
   background: var(--panel);
   color: var(--dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: var(--f-display);
   font-weight: 700;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: 0.14s;
   position: relative;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
+.plan-week:active { transform: scale(0.94); }
 .plan-week.on {
-  background: var(--acid);
-  color: #0a0c10;
-  border-color: var(--acid);
+  background: var(--brand);
+  color: var(--brand-ink);
+  border-color: var(--brand);
+  box-shadow: 0 8px 18px -10px rgba(242, 106, 61, 0.9);
 }
 .plan-week.now::after {
   content: "";
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 5px;
-  height: 5px;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: var(--fire);
+  background: var(--brand);
 }
-.plan-week.on.now::after { background: #0a0c10; }
+.plan-week.on.now::after { background: var(--brand-ink); }
 
-/* Foco semana */
+/* ---------------- FOCO DE LA SEMANA ---------------- */
 .plan-foco {
-  background: var(--panel2);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--acid);
-  border-radius: 0 10px 10px 0;
-  padding: 12px 14px;
-  font-size: 12.5px;
-  color: #c9d3e0;
+  background:
+    linear-gradient(90deg, var(--brand-soft), transparent 70%),
+    var(--panel);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--brand);
+  border-radius: 4px 14px 14px 4px;
+  padding: 13px 15px;
+  font-size: 13.5px;
+  color: var(--txt2);
   line-height: 1.5;
   margin-bottom: 14px;
 }
 .plan-foco span {
   display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: var(--acid);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand);
   margin-right: 8px;
 }
 .plan-deload {
   display: inline-block;
   margin-left: 8px;
-  background: rgba(255, 92, 51, 0.15);
-  color: var(--fire);
-  font-size: 9px;
-  padding: 2px 7px;
-  border-radius: 5px;
-  letter-spacing: 1px;
+  background: rgba(139, 176, 207, 0.14);
+  color: var(--info);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
 }
 
-/* Días */
+/* ---------------- DÍAS ---------------- */
 .plan-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -155,41 +203,53 @@
   margin-bottom: 18px;
 }
 .plan-day {
-  border: 1px solid var(--line);
+  min-height: 44px;
+  border: 1px solid var(--line-soft);
   background: var(--panel);
   color: var(--dim);
-  border-radius: 9px;
+  border-radius: 12px;
   padding: 10px 2px;
-  font-size: 11px;
-  font-weight: 600;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: 0.14s;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
+.plan-day:active { transform: scale(0.94); }
 .plan-day.on {
-  background: var(--acid);
-  color: #0a0c10;
-  border-color: var(--acid);
+  background: var(--txt);
+  color: var(--bg);
+  border-color: var(--txt);
 }
 
-/* Contenido */
+/* ---------------- CONTENIDO ---------------- */
 .plan-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  animation: plan-in 0.35s var(--ease);
 }
-.plan-empty, .plan-rest {
-  font-size: 13px;
+@keyframes plan-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.plan-empty,
+.plan-rest {
+  font-size: 14px;
   color: var(--dim);
   text-align: center;
-  padding: 24px 0;
-  line-height: 1.5;
+  padding: 28px 10px;
+  line-height: 1.55;
 }
 
-/* Comidas */
+/* ---------------- COMIDAS ---------------- */
 .plan-meal {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
   padding: 16px;
 }
 .plan-meal-head {
@@ -199,183 +259,208 @@
   margin-bottom: 8px;
 }
 .plan-meal-when {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1.5px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--acid);
+  color: var(--brand);
 }
 .plan-meal-kcal {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--dim);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt2);
 }
 .plan-meal-desc {
-  font-size: 14px;
-  color: #d4dde8;
-  line-height: 1.5;
+  font-size: 14.5px;
+  color: var(--txt);
+  line-height: 1.55;
 }
 .plan-meal-prot {
   display: inline-block;
   margin-top: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--ice);
-  background: rgba(56, 214, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 5px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ok);
+  background: rgba(143, 203, 139, 0.1);
+  padding: 4px 10px;
+  border-radius: 999px;
 }
 
-/* Macros del día */
+/* ---------------- MACROS DEL DÍA ---------------- */
 .plan-macros {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   margin-top: 4px;
 }
 .plan-macros div {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 13px 6px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  padding: 12px 4px;
   text-align: center;
 }
 .plan-macros span {
   display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--dim);
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 .plan-macros b {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--acid);
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
 }
+.plan-macros div:first-child b { color: var(--brand); }
 
-/* Sesión rutina */
+/* ---------------- SESIÓN RUTINA ---------------- */
 .plan-session {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  padding: 16px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(242, 106, 61, 0.12), transparent 60%),
+    var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  padding: 18px;
 }
 .plan-session h3 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  letter-spacing: 1px;
-  font-weight: 400;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 30px;
+  line-height: 1;
+  text-transform: uppercase;
+  margin: 0;
 }
 .plan-cardio {
-  font-size: 12.5px;
-  color: var(--ice);
-  margin-top: 8px;
-}
-.plan-mov {
-  font-size: 12px;
-  color: var(--dim);
-  line-height: 1.5;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--info);
   margin-top: 10px;
 }
-.plan-mov b { color: #c9d3e0; }
+.plan-mov {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.55;
+  margin-top: 10px;
+}
+.plan-mov b { color: var(--txt2); }
 
-/* Tabla ejercicios */
+/* ---------------- TABLA DE EJERCICIOS ---------------- */
 .plan-ex-table {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
   overflow: hidden;
 }
 .plan-ex-head {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 14px;
+  padding: 11px 16px;
   background: var(--panel2);
-  border-bottom: 1px solid var(--line);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8.5px;
-  letter-spacing: 1px;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--dim);
 }
 .plan-ex-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 12px;
-  padding: 13px 16px;
-  border-bottom: 1px solid rgba(35, 42, 53, 0.5);
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line-soft);
   align-items: center;
 }
 .plan-ex-row:last-child { border: none; }
 .plan-ex-name {
-  font-size: 13px;
-  color: var(--txt);
   display: flex;
   flex-direction: column;
   gap: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt);
 }
 .plan-ex-name em {
   font-style: normal;
-  font-size: 10px;
+  font-weight: 500;
+  font-size: 12px;
   color: var(--dim);
 }
 .plan-ex-sr {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  color: var(--acid);
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
   white-space: nowrap;
   text-align: right;
 }
 .plan-ex-rest {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
   color: var(--dim);
   white-space: nowrap;
   text-align: right;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .plan-toggle button, .plan-week, .plan-day { transition: none; }
 }
 
 /* ---------------- BOTÓN VER VIDEO ---------------- */
 .plan-ex-video {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 7px;
+  gap: 6px;
+  margin-top: 8px;
   align-self: flex-start;
-  background: rgba(56, 214, 255, 0.1);
-  border: 1px solid rgba(56, 214, 255, 0.3);
-  color: var(--ice);
-  border-radius: 7px;
-  padding: 5px 11px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.5px;
+  min-height: 32px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--txt2);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .plan-ex-video:active {
-  transform: scale(0.96);
-  background: rgba(56, 214, 255, 0.2);
+  transform: scale(0.95);
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
-/* ---------------- MODAL DE VIDEO ---------------- */
+/* ---------------- MODAL DE VIDEO (hoja inferior en celular) ---------------- */
 .plan-video-overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(5, 7, 10, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(8, 7, 6, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
   animation: plan-fade-in 0.2s ease;
 }
 @keyframes plan-fade-in {
@@ -384,61 +469,77 @@
 }
 .plan-video-modal {
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  border: 1px solid var(--line-soft);
+  border-bottom: none;
+  border-radius: 26px 26px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
-  animation: plan-modal-up 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: plan-sheet-up 0.32s var(--ease);
 }
-@keyframes plan-modal-up {
-  from { opacity: 0; transform: translateY(20px) scale(0.97); }
-  to { opacity: 1; transform: none; }
+@keyframes plan-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
 }
 .plan-video-head {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
+  padding: 22px 18px 14px;
+}
+.plan-video-head::before {           /* agarradera de la hoja */
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--panel3);
 }
 .plan-video-head span {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  letter-spacing: 0.5px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.05;
+  text-transform: uppercase;
   color: var(--txt);
-  line-height: 1.1;
 }
 .plan-video-close {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  background: var(--bg);
+  background: var(--panel2);
   color: var(--dim);
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
-  transition: 0.15s;
+  transition: transform 0.15s, color 0.15s;
 }
 .plan-video-close:active {
   transform: scale(0.92);
-  color: var(--fire);
-  border-color: var(--fire);
+  color: var(--txt);
 }
 .plan-video-body {
-  background: #06080b;
+  background: #f3eee6;               /* los GIF suelen ser de fondo claro */
+  margin: 0 14px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 240px;
-  padding: 12px;
+  padding: 10px;
+  overflow: hidden;
 }
 .plan-video-gif {
   max-width: 100%;
-  max-height: 60vh;
-  border-radius: 10px;
+  max-height: 52vh;
+  border-radius: 12px;
   display: block;
 }
 .plan-video-fallback {
@@ -446,27 +547,61 @@
   padding: 30px 20px;
 }
 .plan-video-fallback p {
-  font-size: 13px;
-  color: var(--dim);
+  font-size: 14px;
+  color: #5a544c;
   line-height: 1.5;
   margin-bottom: 16px;
 }
 .plan-video-link {
   display: inline-block;
-  background: var(--ice);
-  color: #06080b;
+  background: var(--brand);
+  color: var(--brand-ink);
   text-decoration: none;
-  padding: 11px 20px;
-  border-radius: 9px;
-  font-size: 13px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-family: var(--f-display);
   font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .plan-video-foot {
-  padding: 13px 18px;
-  border-top: 1px solid var(--line);
+  padding: 14px 18px 18px;
 }
 .plan-video-foot span {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--dim);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+/* En pantallas grandes el modal vuelve a ser centrado */
+@media (min-width: 720px) {
+  .plan-video-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+  .plan-video-modal {
+    border-radius: 24px;
+    border-bottom: 1px solid var(--line-soft);
+    animation: plan-modal-up 0.28s var(--ease);
+  }
+  @keyframes plan-modal-up {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+.plan-wrap button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-toggle button, .plan-week, .plan-day, .plan-content,
+  .plan-video-overlay, .plan-video-modal {
+    transition: none;
+    animation: none;
+  }
 }

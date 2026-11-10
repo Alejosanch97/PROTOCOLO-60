@@ -81,17 +81,17 @@ const AreaChartP60 = ({ data, meta, color, label, unidad, gradId, invertida = fa
                 <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#232a35" strokeDasharray="3 6" vertical={false} />
+            <CartesianGrid stroke="#2c2925" strokeDasharray="3 6" vertical={false} />
             <XAxis
               dataKey="fecha"
-              tick={{ fill: "#7d8899", fontSize: 9, fontFamily: "JetBrains Mono, monospace" }}
+              tick={{ fill: "#8a8277", fontSize: 11, fontFamily: "Barlow Condensed, sans-serif" }}
               axisLine={{ stroke: "#232a35" }}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={dominio}
-              tick={{ fill: "#7d8899", fontSize: 9, fontFamily: "JetBrains Mono, monospace" }}
+              tick={{ fill: "#8a8277", fontSize: 11, fontFamily: "Barlow Condensed, sans-serif" }}
               axisLine={false}
               tickLine={false}
               width={38}
@@ -103,15 +103,15 @@ const AreaChartP60 = ({ data, meta, color, label, unidad, gradId, invertida = fa
             {meta != null && (
               <ReferenceLine
                 y={meta}
-                stroke="#ffb627"
+                stroke="#cfc8bd"
                 strokeDasharray="5 5"
                 strokeOpacity={0.8}
                 label={{
                   value: `meta ${meta}${unidad}`,
                   position: "insideBottomRight",
-                  fill: "#ffb627",
-                  fontSize: 9,
-                  fontFamily: "JetBrains Mono, monospace",
+                  fill: "#cfc8bd",
+                  fontSize: 11,
+                  fontFamily: "Barlow Condensed, sans-serif",
                 }}
               />
             )}
@@ -122,7 +122,7 @@ const AreaChartP60 = ({ data, meta, color, label, unidad, gradId, invertida = fa
               strokeWidth={2.5}
               fill={`url(#${gradId})`}
               dot={{ fill: color, r: 3, strokeWidth: 0 }}
-              activeDot={{ fill: color, r: 5, stroke: "#0a0c10", strokeWidth: 2 }}
+              activeDot={{ fill: color, r: 5, stroke: "#171614", strokeWidth: 2 }}
               animationDuration={700}
             />
           </AreaChart>
@@ -328,12 +328,12 @@ export const ProgresoSection = ({ user }) => {
       )}
 
       {/* Gráficas Recharts */}
-      <AreaChartP60 data={pesoPts} meta={metaPeso} color="#c8ff2f" label="Peso" unidad="kg" gradId="gradPeso" invertida />
+      <AreaChartP60 data={pesoPts} meta={metaPeso} color="#f26a3d" label="Peso" unidad="kg" gradId="gradPeso" invertida />
       {grasaPts.length > 0 && (
-        <AreaChartP60 data={grasaPts} meta={metaGrasa} color="#ff5c33" label="Grasa corporal" unidad="%" gradId="gradGrasa" invertida />
+        <AreaChartP60 data={grasaPts} meta={metaGrasa} color="#e6ae4c" label="Grasa corporal" unidad="%" gradId="gradGrasa" invertida />
       )}
       {musculoPts.length > 0 && (
-        <AreaChartP60 data={musculoPts} color="#38d6ff" label="Músculo esquelético" unidad="%" gradId="gradMusc" />
+        <AreaChartP60 data={musculoPts} color="#8bb0cf" label="Músculo esquelético" unidad="%" gradId="gradMusc" />
       )}
 
       {/* Etapa actual + reinicio */}

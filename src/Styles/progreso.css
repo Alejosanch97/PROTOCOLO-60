@@ -1,32 +1,46 @@
 /* ============================================================
    PROTOCOLO 60 — PROGRESO
+   Paleta "Hierro & Brasa"
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+.prg-wrap,
+.prg-loading-state {
+  --bg: #0d0c0b;
+  --panel: #171614;
+  --panel2: #1f1d1a;
+  --panel3: #282520;
+  --line: #2c2925;
+  --line-soft: rgba(243, 238, 230, 0.06);
+  --txt: #f3eee6;
+  --txt2: #cfc8bd;
+  --dim: #8a8277;
+  --mute: #5a544c;
+  --brand: #f26a3d;
+  --brand-deep: #c9461f;
+  --brand-ink: #1c0e08;
+  --brand-soft: rgba(242, 106, 61, 0.12);
+  --ok: #8fcb8b;
+  --warn: #e6ae4c;
+  --bad: #e5484d;
+  --info: #8bb0cf;
+  --acid: var(--brand);
+  --fire: var(--bad);
+  --ice: var(--info);
+  --gold: var(--warn);
+  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'Manrope', system-ui, sans-serif;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .prg-wrap {
-  --bg: #0a0c10;
-  --panel: #12161d;
-  --panel2: #171c25;
-  --line: #232a35;
-  --txt: #e8edf5;
-  --dim: #7d8899;
-  --acid: #c8ff2f;
-  --fire: #ff5c33;
-  --ice: #38d6ff;
-  --gold: #ffb627;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--f-body);
   color: var(--txt);
+  width: 100%;
 }
 .prg-wrap * { box-sizing: border-box; }
 
 /* ---------------- LOADING STATE ---------------- */
 .prg-loading-state {
-  --bg: #0a0c10;
-  --panel: #12161d;
-  --panel2: #171c25;
-  --line: #232a35;
-  --dim: #7d8899;
-  --acid: #c8ff2f;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,8 +48,8 @@
 }
 .prg-loading-orb {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,23 +59,26 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 3px solid var(--line);
-  border-top-color: var(--acid);
+  border: 3px solid var(--panel3);
+  border-top-color: var(--brand);
   animation: prg-spin 0.8s linear infinite;
 }
 @keyframes prg-spin {
   to { transform: rotate(360deg); }
 }
 .prg-loading-core {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
   font-size: 30px;
-  letter-spacing: 1px;
-  color: var(--acid);
+  color: var(--brand);
 }
 .prg-loading-txt {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   color: var(--dim);
   margin-bottom: 24px;
   animation: prg-fade 1.4s ease-in-out infinite;
@@ -78,12 +95,12 @@
 }
 .prg-skeleton {
   height: 150px;
-  border-radius: 16px;
+  border-radius: 22px;
   background: linear-gradient(100deg, var(--panel) 30%, var(--panel2) 50%, var(--panel) 70%);
   background-size: 200% 100%;
-  animation: prg-shimmer 1.3s infinite;
+  animation: prg-shimmer 1.4s infinite;
 }
-.prg-skeleton:first-child { height: 200px; }
+.prg-skeleton:first-child { height: 210px; }
 @keyframes prg-shimmer {
   to { background-position: -200% 0; }
 }
@@ -91,37 +108,44 @@
 /* ---------------- HEAD ---------------- */
 .prg-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 16px;
 }
 .prg-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 36px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 .prg-count {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--dim);
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  padding: 5px 11px;
+  border-radius: 999px;
 }
 
 /* ---------------- CARD META PRINCIPAL ---------------- */
 .prg-goal-card {
-  background: linear-gradient(155deg, #14181f, #0d1116);
-  border: 1px solid rgba(200, 255, 47, 0.18);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 14px;
   position: relative;
   overflow: hidden;
-}
-.prg-goal-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--acid), transparent 65%);
+  background:
+    radial-gradient(140% 90% at 100% 0%, rgba(242, 106, 61, 0.16), transparent 55%),
+    linear-gradient(170deg, #1d1b18 0%, #141311 100%);
+  border: 1px solid rgba(242, 106, 61, 0.18);
+  border-radius: 22px;
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 14px 32px -18px rgba(0, 0, 0, 0.85);
 }
 .prg-goal-top {
   display: flex;
@@ -130,16 +154,21 @@
   margin-bottom: 18px;
 }
 .prg-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
-  letter-spacing: 2px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--dim);
 }
 .prg-goal-pct {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
-  color: var(--acid);
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 34px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
 }
 .prg-goal-nums {
   display: flex;
@@ -151,61 +180,71 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 .prg-goal-nums b {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 32px;
   line-height: 1;
-  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
 }
 .prg-goal-nums span {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 1px;
-  color: var(--dim);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-.prg-goal-now b { color: var(--acid); }
-.prg-goal-arrow {
   color: var(--dim);
+}
+.prg-goal-now b { color: var(--brand); }
+.prg-goal-arrow {
+  color: var(--mute);
   font-size: 16px;
 }
 .prg-goal-bar {
-  height: 8px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 20px;
+  height: 10px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(243, 238, 230, 0.07) calc(10% - 1px) 10%),
+    var(--bg);
+  border-radius: 999px;
   margin: 18px 0 12px;
   overflow: hidden;
 }
 .prg-goal-bar div {
   height: 100%;
-  background: linear-gradient(90deg, var(--acid), #9fe000);
-  border-radius: 20px;
-  transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: linear-gradient(90deg, var(--brand-deep), var(--brand));
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(242, 106, 61, 0.45);
+  transition: width 0.9s var(--ease);
 }
 .prg-goal-sub {
-  font-size: 12.5px;
-  color: var(--dim);
+  font-size: 13.5px;
+  color: var(--txt2);
   line-height: 1.5;
 }
-.prg-goal-sub b { color: var(--acid); }
+.prg-goal-sub b {
+  color: var(--brand);
+  font-weight: 800;
+}
 
 /* ---------------- RITMO ---------------- */
 .prg-rhythm {
+  --tone: var(--dim);
   display: flex;
   align-items: center;
   gap: 16px;
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 16px 18px;
   margin-bottom: 14px;
-  border: 1px solid var(--line);
-  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--tone) 28%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--tone) 10%, transparent), transparent 70%),
+    var(--panel);
 }
-.prg-rhythm.good { border-color: rgba(200, 255, 47, 0.35); }
-.prg-rhythm.warn { border-color: rgba(255, 182, 39, 0.35); }
-.prg-rhythm.bad { border-color: rgba(255, 92, 51, 0.35); }
+.prg-rhythm.good { --tone: var(--ok); }
+.prg-rhythm.warn { --tone: var(--warn); }
+.prg-rhythm.bad { --tone: var(--bad); }
 .prg-rhythm-val {
   display: flex;
   flex-direction: column;
@@ -213,32 +252,36 @@
   flex-shrink: 0;
 }
 .prg-rhythm-val b {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 34px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 36px;
   line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: var(--tone);
 }
-.prg-rhythm.good .prg-rhythm-val b { color: var(--acid); }
-.prg-rhythm.warn .prg-rhythm-val b { color: var(--gold); }
-.prg-rhythm.bad .prg-rhythm-val b { color: var(--fire); }
 .prg-rhythm-val span {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--dim);
-  margin-top: 3px;
+  margin-top: 4px;
 }
 .prg-rhythm p {
-  font-size: 13px;
-  color: #c9d3e0;
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--txt2);
   line-height: 1.5;
 }
 
 /* ---------------- GRÁFICA (Recharts) ---------------- */
 .prg-chart {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 18px 16px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  padding: 18px 14px 10px;
   margin-bottom: 14px;
 }
 .prg-chart-top {
@@ -246,12 +289,13 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 8px;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 .prg-chart-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
-  letter-spacing: 1.5px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--dim);
 }
@@ -259,69 +303,76 @@
   display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .prg-chart-val b {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 34px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 38px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .prg-chart-val i {
   font-style: normal;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 15px;
+  text-transform: uppercase;
   color: var(--dim);
 }
 .prg-delta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-family: var(--f-display);
   font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 7px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 11px;
+  border-radius: 999px;
 }
-.prg-delta.good { color: var(--acid); background: rgba(200, 255, 47, 0.1); }
-.prg-delta.bad { color: var(--fire); background: rgba(255, 92, 51, 0.1); }
+.prg-delta.good { color: var(--ok); background: rgba(143, 203, 139, 0.12); }
+.prg-delta.bad { color: var(--bad); background: rgba(229, 72, 77, 0.12); }
 .prg-chart-body {
   width: 100%;
   margin-top: 4px;
 }
-/* Recharts overrides */
-.prg-chart .recharts-cartesian-axis-tick text {
-  fill: var(--dim);
-}
+.prg-chart .recharts-cartesian-axis-tick text { fill: var(--dim); }
 .prg-chart .recharts-surface { overflow: visible; }
 .prg-nochart {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--dim);
   text-align: center;
   padding: 30px 0;
 }
 
-/* Tooltip personalizado */
+/* Tooltip */
 .prg-tooltip {
-  background: rgba(10, 12, 16, 0.95);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  background: rgba(31, 29, 26, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
 }
 .prg-tooltip-date {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--dim);
 }
 .prg-tooltip-val {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 24px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 26px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .prg-tooltip-val i {
   font-style: normal;
-  font-size: 11px;
+  font-weight: 600;
+  font-size: 13px;
   margin-left: 2px;
   opacity: 0.7;
 }
@@ -329,41 +380,44 @@
 /* ---------------- METAS ---------------- */
 .prg-metas {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
   padding: 20px;
   margin-bottom: 14px;
 }
 .prg-metas h3 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 1px;
-  font-weight: 400;
-  margin-bottom: 14px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 24px;
+  text-transform: uppercase;
+  margin: 0 0 10px;
 }
 .prg-meta-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(35, 42, 53, 0.5);
-  font-size: 13.5px;
-  color: #c9d3e0;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
+  color: var(--txt2);
 }
 .prg-meta-row:last-child { border: none; }
 .prg-meta-row b {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
   color: var(--txt);
 }
-.prg-meta-row b.ok { color: var(--acid); }
+.prg-meta-row b.ok { color: var(--ok); }
 .prg-meta-row b.ok::before { content: "✓ "; }
 
 .prg-hint {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--dim);
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.55;
   padding: 6px 20px;
   margin-bottom: 14px;
 }
@@ -371,19 +425,20 @@
 /* ---------------- REGISTRO SEMANAL ---------------- */
 .prg-semanal {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
   padding: 20px;
   margin-bottom: 14px;
 }
 .prg-semanal h3 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 24px;
+  text-transform: uppercase;
+  margin: 0 0 6px;
 }
 .prg-semanal-sub {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--dim);
   line-height: 1.5;
   margin-bottom: 18px;
@@ -395,84 +450,117 @@
   margin-bottom: 18px;
 }
 .prg-sem-field label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--dim);
 }
 .prg-sem-field input {
+  min-height: 52px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 13px 14px;
-  color: var(--acid);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--txt);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
 }
 .prg-sem-field input:focus {
   outline: none;
-  border-color: var(--acid);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px var(--brand-soft);
 }
 .prg-sem-scale {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 .prg-sem-scale > span {
-  font-size: 13px;
-  color: #c9d3e0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt2);
 }
 .prg-scale-dots {
   display: flex;
   gap: 6px;
 }
 .prg-scale-dots button {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  border: 1px solid var(--line);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
   background: var(--bg);
   color: var(--dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: var(--f-display);
   font-weight: 700;
+  font-size: 17px;
   cursor: pointer;
-  transition: 0.14s;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
+.prg-scale-dots button:active { transform: scale(0.92); }
 .prg-scale-dots button.on {
-  background: var(--acid);
-  color: #0a0c10;
-  border-color: var(--acid);
+  background: var(--brand);
+  color: var(--brand-ink);
+  border-color: var(--brand);
 }
 .prg-sem-save {
   width: 100%;
+  min-height: 54px;
   margin-top: 8px;
-  background: var(--acid);
-  color: #0a0c10;
+  background: linear-gradient(180deg, #f47a50 0%, var(--brand) 55%, #e05c30 100%);
+  color: var(--brand-ink);
   border: none;
-  border-radius: 11px;
+  border-radius: 14px;
   padding: 15px;
+  font-family: var(--f-display);
   font-weight: 800;
-  font-size: 14px;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 14px 30px -14px rgba(242, 106, 61, 0.9);
+  transition: transform 0.15s;
 }
+.prg-sem-save:active:not(:disabled) { transform: scale(0.98); }
 .prg-sem-save:disabled { opacity: 0.55; }
+
 .prg-toast {
   position: fixed;
-  bottom: calc(90px + env(safe-area-inset-bottom));
+  bottom: calc(96px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  background: var(--acid);
-  color: #0a0c10;
-  padding: 12px 22px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
   z-index: 60;
+  max-width: 90%;
+  background: var(--txt);
+  color: var(--bg);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  animation: prg-toast-in 0.3s var(--ease);
+}
+@keyframes prg-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+.prg-wrap button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .prg-goal-bar div, .prg-loading-ring, .prg-skeleton { animation: none; transition: none; }
+  .prg-goal-bar div, .prg-loading-ring, .prg-skeleton, .prg-toast, .prg-loading-txt {
+    animation: none;
+    transition: none;
+  }
 }

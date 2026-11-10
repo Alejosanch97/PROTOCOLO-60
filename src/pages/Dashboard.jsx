@@ -234,7 +234,7 @@ const DashboardInner = ({ userData, uidActual, onLogout }) => {
 
   /* ---------- Estados del semáforo de déficit ---------- */
   const estadoColor = {
-    verde: "var(--acid)",
+    verde: "var(--ok)",
     amarillo: "var(--gold)",
     rojo: "var(--fire)",
     sin_datos: "var(--dim)",
