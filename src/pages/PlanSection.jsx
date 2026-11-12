@@ -246,16 +246,21 @@ export const PlanSection = ({ user }) => {
         </div>
       )}
 
-      {/* MODAL DE VIDEO */}
+            {/* MODAL DE VIDEO */}
       {videoEj && (() => {
         const v = videoDeEjercicio(videoEj);
+        const reps = fixReps(videoEj.repeticiones);
+        const repsLargas = reps.length > 8;
+        const alt = clean(videoEj.si_ocupado);
         return (
           <div className="plan-video-overlay" onClick={() => setVideoEj(null)}>
-            <div className="plan-video-modal" onClick={(ev) => ev.stopPropagation()}>
-              <div className="plan-video-head">
-                <span>{clean(videoEj.nombre_ejercicio)}</span>
-                <button className="plan-video-close" onClick={() => setVideoEj(null)}>✕</button>
-              </div>
+            <div
+              className="plan-video-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label={clean(videoEj.nombre_ejercicio)}
+              onClick={(ev) => ev.stopPropagation()}
+            >
               <div className="plan-video-body">
                 {!videoError ? (
                   <img
@@ -272,9 +277,30 @@ export const PlanSection = ({ user }) => {
                     </a>
                   </div>
                 )}
+                <button className="plan-video-close" aria-label="Cerrar" onClick={() => setVideoEj(null)}>✕</button>
               </div>
-              <div className="plan-video-foot">
-                <span>{clean(videoEj.series)} × {fixReps(videoEj.repeticiones)} · descanso {clean(videoEj.descanso)}</span>
+
+              <div className="plan-video-head">
+                <span className="plan-video-eyebrow">{clean(entrenoDia?.sesion) || "Ejercicio"}</span>
+                <h3 className="plan-video-title">{clean(videoEj.nombre_ejercicio)}</h3>
+                {alt && alt !== "—" && (
+                  <span className="plan-video-alt"><b>Si está ocupado:</b> {alt}</span>
+                )}
+              </div>
+
+              <div className={`plan-video-stats${repsLargas ? " has-wide" : ""}`}>
+                <div className="plan-video-stat">
+                  <span>Series</span>
+                  <b>{clean(videoEj.series) || "—"}</b>
+                </div>
+                <div className={`plan-video-stat${repsLargas ? " wide" : ""}`}>
+                  <span>Reps</span>
+                  <b>{reps || "—"}</b>
+                </div>
+                <div className="plan-video-stat">
+                  <span>Descanso</span>
+                  <b>{clean(videoEj.descanso) || "—"}</b>
+                </div>
               </div>
             </div>
           </div>

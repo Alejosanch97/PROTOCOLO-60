@@ -449,108 +449,197 @@
   color: var(--brand);
 }
 
-/* ---------------- MODAL DE VIDEO (hoja inferior en celular) ---------------- */
+/* ---------------- MODAL DE VIDEO (tarjeta centrada) ---------------- */
 .plan-video-overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(8, 7, 6, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 0;
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  background: rgba(8, 7, 6, 0.72);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
   animation: plan-fade-in 0.2s ease;
 }
 @keyframes plan-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 .plan-video-modal {
-  width: 100%;
-  max-width: 480px;
-  background: var(--panel);
-  border: 1px solid var(--line-soft);
-  border-bottom: none;
-  border-radius: 26px 26px 0 0;
-  padding-bottom: env(safe-area-inset-bottom);
-  overflow: hidden;
-  animation: plan-sheet-up 0.32s var(--ease);
-}
-@keyframes plan-sheet-up {
-  from { transform: translateY(100%); }
-  to { transform: none; }
-}
-.plan-video-head {
   position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid rgba(243, 238, 230, 0.08);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9);
+  animation: plan-modal-in 0.32s var(--ease);
+}
+@keyframes plan-modal-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Escenario del GIF: blanco puro, de borde a borde, para que el GIF se funda */
+.plan-video-body {
+  position: relative;
+  flex-shrink: 1;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  max-height: 52vh;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 22px 18px 14px;
+  justify-content: center;
+  background: #ffffff;
+  overflow: hidden;
 }
-.plan-video-head::before {           /* agarradera de la hoja */
-  content: "";
+.plan-video-gif {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4%;
+}
+/* Etiqueta "Técnica" sobre la imagen */
+.plan-video-body::before {
+  content: "TÉCNICA";
   position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 38px;
-  height: 4px;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  padding: 5px 10px;
   border-radius: 999px;
-  background: var(--panel3);
+  background: rgba(13, 12, 11, 0.86);
+  color: var(--txt);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
 }
-.plan-video-head span {
+/* Cerrar: flotando sobre la imagen */
+.plan-video-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(13, 12, 11, 0.86);
+  color: var(--txt);
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.plan-video-close:active {
+  transform: scale(0.9);
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+/* Título + alternativa */
+.plan-video-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px 4px;
+}
+.plan-video-eyebrow {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+.plan-video-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 30px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--txt);
+  text-wrap: balance;
+}
+.plan-video-alt {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.45;
+}
+.plan-video-alt b { color: var(--txt2); font-weight: 600; }
+
+/* Series / reps / descanso en tres bloques */
+.plan-video-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 14px 20px 20px;
+}
+.plan-video-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 11px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+}
+.plan-video-stat span {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.plan-video-stat b {
+  max-width: 100%;
   font-family: var(--f-display);
   font-weight: 800;
   font-size: 24px;
   line-height: 1.05;
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
   color: var(--txt);
+  overflow-wrap: anywhere;
 }
-.plan-video-close {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--panel2);
-  color: var(--dim);
-  font-size: 15px;
-  cursor: pointer;
-  transition: transform 0.15s, color 0.15s;
+.plan-video-stat:first-child b { color: var(--brand); }
+/* Reps largas (circuitos): ocupan toda la fila y el resto va en 2 columnas */
+.plan-video-stats.has-wide { grid-template-columns: 1fr 1fr; }
+.plan-video-stat.wide {
+  grid-column: 1 / -1;
+  order: 3;
 }
-.plan-video-close:active {
-  transform: scale(0.92);
-  color: var(--txt);
-}
-.plan-video-body {
-  background: #f3eee6;               /* los GIF suelen ser de fondo claro */
-  margin: 0 14px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 240px;
-  padding: 10px;
-  overflow: hidden;
-}
-.plan-video-gif {
-  max-width: 100%;
-  max-height: 52vh;
-  border-radius: 12px;
-  display: block;
-}
+.plan-video-stat.wide b { font-size: 17px; line-height: 1.25; }
+
+/* Si el GIF no carga */
 .plan-video-fallback {
   text-align: center;
-  padding: 30px 20px;
+  padding: 30px 24px;
 }
 .plan-video-fallback p {
   font-size: 14px;
   color: #5a544c;
   line-height: 1.5;
-  margin-bottom: 16px;
+  margin: 0 0 16px;
 }
 .plan-video-link {
   display: inline-block;
@@ -565,33 +654,11 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.plan-video-foot {
-  padding: 14px 18px 18px;
-}
-.plan-video-foot span {
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--brand);
-}
 
-/* En pantallas grandes el modal vuelve a ser centrado */
-@media (min-width: 720px) {
-  .plan-video-overlay {
-    align-items: center;
-    padding: 20px;
-  }
-  .plan-video-modal {
-    border-radius: 24px;
-    border-bottom: 1px solid var(--line-soft);
-    animation: plan-modal-up 0.28s var(--ease);
-  }
-  @keyframes plan-modal-up {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
-    to { opacity: 1; transform: none; }
-  }
+/* Celulares bajitos (SE, landscape): imagen más pequeña */
+@media (max-height: 640px) {
+  .plan-video-body { max-height: 42vh; }
+  .plan-video-title { font-size: 24px; }
 }
 
 .plan-wrap button:focus-visible {
